@@ -125,3 +125,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Seoul Open API Key
 SEOUL_API_KEY = "56557a426c74616e33314c44654a70"
+
+# Kakao API Key
+KAKAO_API_KEY = "e3076f90944b313f7c4b350d929b2985"
