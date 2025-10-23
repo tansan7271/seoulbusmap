@@ -7,14 +7,14 @@ import time
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        api_key = settings.SEOUL_API_KEY
+        seoul_api_key = settings.SEOUL_API_KEY
 
         # 1단계: 행정동 코드와 이름 정보 수집
         self.stdout.write(self.style.SUCCESS('[fetch_hangjeongdong_data] 행정동 이름/코드 정보 수집을 시작합니다...'))
         try:
             service_name_info = 'TbgisAdstrdRelmW'
             data_type = 'json'
-            url = f'http://openapi.seoul.go.kr:8088/{api_key}/{data_type}/{service_name_info}/1/500/'
+            url = f'http://openapi.seoul.go.kr:8088/{seoul_api_key}/{data_type}/{service_name_info}/1/500/'
             response = requests.get(url, timeout=10)
             response.raise_for_status()
             
@@ -47,7 +47,7 @@ class Command(BaseCommand):
             for i in range(1, 8):
                 date_to_check = (datetime.now() - timedelta(days=i)).strftime('%Y%m%d')
                 self.stdout.write(f'[fetch_hangjeongdong_data] {date_to_check} 기준 인구수 데이터를 탐색합니다...')
-                check_url = f'http://openapi.seoul.go.kr:8088/{api_key}/json/{service_name_pop}/1/1/{date_to_check}'
+                check_url = f'http://openapi.seoul.go.kr:8088/{seoul_api_key}/json/{service_name_pop}/1/1/{date_to_check}'
                 response = requests.get(check_url, timeout=10)
                 if response.ok and service_name_pop in response.json() and 'row' in response.json()[service_name_pop]:
                     target_date = date_to_check
@@ -69,7 +69,7 @@ class Command(BaseCommand):
                 if end_index > total_count:
                     end_index = total_count
                 
-                url = f'http://openapi.seoul.go.kr:8088/{api_key}/json/{service_name_pop}/{start_index}/{end_index}/{target_date}'
+                url = f'http://openapi.seoul.go.kr:8088/{seoul_api_key}/json/{service_name_pop}/{start_index}/{end_index}/{target_date}'
                 response = requests.get(url, timeout=10)
                 response.raise_for_status()
                 all_pop_rows.extend(response.json()[service_name_pop].get('row', []))
