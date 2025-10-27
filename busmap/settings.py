@@ -123,8 +123,8 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Seoul Open API Key
+# Seoul Open API 키 (반출 절대 금지!!!!!)
 SEOUL_API_KEY = "<your-seoul-api-key>"
 
-# Kakao API Key
+# Kakao REST API 키 (반출 절대 금지!!!!!)
 KAKAO_API_KEY = "<your-kakao-api-key>"
