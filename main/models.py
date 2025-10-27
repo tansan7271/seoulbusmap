@@ -41,9 +41,6 @@ class BusData(models.Model):
 # Cold 모델: 최신이 아닌 정보를 보존하는 데이터셋.
 
 class HangJeongDongHistory(models.Model):
-    """
-    행정동 정보의 변경 이력을 저장하는 모델
-    """
     district_id = models.CharField(max_length=10, help_text="행정동 ID")
     name = models.CharField(max_length=100, help_text="행정동 이름")
     population = models.IntegerField(help_text="총 생활 인구수", null=True, blank=True)
@@ -56,9 +53,6 @@ class HangJeongDongHistory(models.Model):
         return f"{self.name} ({self.district_id}) @ {self.archived_at}"
 
 class BusStopHistory(models.Model):
-    """
-    버스 정류장 정보의 변경 이력을 저장하는 모델
-    """
     busstop_id = models.CharField(max_length=20, help_text="정류장 ID")
     name = models.CharField(max_length=100, help_text="정류장 이름")
     longitude = models.DecimalField(max_digits=10, decimal_places=7, help_text="정류장 경도 (Longitude)")
@@ -74,9 +68,6 @@ class BusStopHistory(models.Model):
         return f"{self.name} ({self.busstop_id}) @ {self.archived_at}"
 
 class BusDataHistory(models.Model):
-    """
-    과거의 일자별 버스 데이터를 보관하는 아카이브 모델
-    """
     busstop_id = models.CharField(max_length=20, help_text="정류장 ID")
     bus_id = models.CharField(max_length=20, help_text="노선 ID")
     timestamp = models.DateTimeField(help_text="데이터 기준 시간")
