@@ -178,7 +178,7 @@ def save_bus_stop_data(parsed_data, kakao_api_key, stdout_logger, style_logger):
         if stop_in_db and not stop_in_api:
             # C (비활성화): DB에는 있지만 API에는 없는 경우
             if stop_in_db.is_active:
-                to_archive.append(BusStopHistory(busstop_id=stop_in_db.busstop_id, name=stop_in_db.name, longitude=stop_in_db.longitude, latitude=stop_in_db.latitude, district_id=stop_in_db.district_id, is_active=stop_in_db.is_active))
+                to_archive.append(BusStopHistory(busstop_id=stop_in_db.busstop_id, name=stop_in_db.name, longitude=stop_in_db.longitude, latitude=stop_in_db.latitude, district_id=stop_in_db.district_id, is_active=stop_in_db.is_active, timestamp=stop_in_db.timestamp))
                 stop_in_db.is_active = False
                 to_update.append(stop_in_db)
         
@@ -193,7 +193,7 @@ def save_bus_stop_data(parsed_data, kakao_api_key, stdout_logger, style_logger):
             reactivated = not stop_in_db.is_active
 
             if name_changed or reactivated:
-                to_archive.append(BusStopHistory(busstop_id=stop_in_db.busstop_id, name=stop_in_db.name, longitude=stop_in_db.longitude, latitude=stop_in_db.latitude, district_id=stop_in_db.district_id, is_active=stop_in_db.is_active))
+                to_archive.append(BusStopHistory(busstop_id=stop_in_db.busstop_id, name=stop_in_db.name, longitude=stop_in_db.longitude, latitude=stop_in_db.latitude, district_id=stop_in_db.district_id, is_active=stop_in_db.is_active, timestamp=stop_in_db.timestamp))
                 stop_in_db.name = stop_in_api['STOPS_NM']
                 stop_in_db.is_active = True
                 to_update.append(stop_in_db)
@@ -357,7 +357,8 @@ def save_hangjeongdong_data(parsed_data, stdout_logger, style_logger):
                 to_archive.append(HangJeongDongHistory(
                     district_id=hjd_in_db.district_id,
                     name=hjd_in_db.name,
-                    population=hjd_in_db.population
+                    population=hjd_in_db.population,
+                    timestamp=hjd_in_db.timestamp
                 ))
                 # 최신 값으로 업데이트 준비
                 if name_changed: hjd_in_db.name = name_from_api
