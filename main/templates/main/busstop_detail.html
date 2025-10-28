@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ bus_stop.name }} - 정류장 상세 정보</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: sans-serif; margin: 2em; }
+        h1, h2 { color: #333; }
+        .container { max-width: 960px; margin: auto; }
+        .summary { margin-top: 1.5em; padding: 1em; border: 1px solid #ddd; border-radius: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1.5em; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .back-link { margin-top: 1.5em; display: inline-block; }
+        .filter-form { background-color: #f4f4f4; padding: 1em; border-radius: 5px; margin-top: 1.5em; }
+        .quick-select button { margin-right: 5px; }
+        #chart-container { margin-top: 2em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ bus_stop.name }} ({{ bus_stop.busstop_id }})</h1>
+
+        <div class="summary">
+            <h2>기본 정보</h2>
+            <p><strong>정류장 이름:</strong> {{ bus_stop.name }}</p>
+            <p><strong>정류장 ID:</strong> {{ bus_stop.busstop_id }}</p>
+            <p><strong>좌표:</strong> {{ bus_stop.latitude }}, {{ bus_stop.longitude }}</p>
+            <p><strong>소속 행정동 ID:</strong> {{ bus_stop.district_id }}</p>
+        </div>
+
+        <h2>상세 승하차 데이터 조회</h2>
+
+        <div class="filter-form">
+            <form method="get" action="" id="filter-form">
+                <label for="start_date">시작일:</label>
+                <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
+                <label for="end_date">종료일:</label>
+                <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+                <br><br>
+                <div class="quick-select">
+                    <strong>빠른 선택:</strong>
+                    <button type="button" data-days="7">지난 7일</button>
+                    <button type="button" data-days="30">지난 30일</button>
+                    <button type="button" data-months="1">지난 1개월</button>
+                </div>
+                <br>
+                <button type="submit">조회</button>
+            </form>
+        </div>
+
+        <div id="chart-container">
+            <h2>일별 승하차 인원 추이</h2>
+            <canvas id="busUsageChart"></canvas>
+        </div>
+
+        <div class="summary">
+            <h2>이용 현황 요약 ({{ start_date }} ~ {{ end_date }})</h2>
+            <p><strong>기간 내 총 승차 인원:</strong> {{ stats.total_passengers_on|floatformat:0|default:"0" }}명</p>
+            <p><strong>기간 내 총 하차 인원:</strong> {{ stats.total_passengers_off|floatformat:0|default:"0" }}명</p>
+            {% if busiest_hour %}
+                <p><strong>가장 붐비는 시간대:</strong> {{ busiest_hour.hour|date:"H" }}시 (총 {{ busiest_hour.total_on }}명 승차)</p>
+            {% else %}
+                <p><strong>가장 붐비는 시간대:</strong> 데이터 없음</p>
+            {% endif %}
+        </div>
+
+        <h2>상세 데이터 테이블</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>데이터 시간</th>
+                    <th>노선 ID</th>
+                    <th>승차 인원</th>
+                    <th>하차 인원</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in bus_data %}
+                    <tr>
+                        <td>{{ data.timestamp }}</td>
+                        <td>{{ data.bus_id }}</td>
+                        <td>{{ data.passengers_on }}</td>
+                        <td>{{ data.passengers_off }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4">해당 기간에 대한 승하차 데이터가 없습니다.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="/" class="back-link">메인 페이지로 돌아가기</a>
+    </div>
+
+<script>
+    // Quick date selection buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('filter-form');
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+
+        document.querySelectorAll('.quick-select button').forEach(button => {
+            button.addEventListener('click', function() {
+                const days = this.dataset.days;
+                const months = this.dataset.months;
+                const endDate = new Date();
+                let startDate = new Date();
+
+                if (days) {
+                    startDate.setDate(endDate.getDate() - (parseInt(days) - 1));
+                } else if (months) {
+                    startDate.setMonth(endDate.getMonth() - parseInt(months));
+                }
+                
+                endDateInput.value = endDate.toISOString().split('T')[0];
+                startDateInput.value = startDate.toISOString().split('T')[0];
+                
+                form.submit();
+            });
+        });
+    });
+
+    // Chart.js rendering
+    const ctx = document.getElementById('busUsageChart').getContext('2d');
+    const busUsageChart = new Chart(ctx, 
+    {
+        type: 'line',
+        data: {
+            labels: {{ chart_labels|safe }},
+            datasets: [
+                {
+                    label: '승차 인원',
+                    data: {{ chart_data_on|safe }},
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    fill: false,
+                    tension: 0.1
+                },
+                {
+                    label: '하차 인원',
+                    data: {{ chart_data_off|safe }},
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    fill: false,
+                    tension: 0.1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: '날짜'
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: '인원수'
+                    },
+                    beginAtZero: true
+                }
+            }
+        }
+});
+</script>
+
+</body>
+</html>
