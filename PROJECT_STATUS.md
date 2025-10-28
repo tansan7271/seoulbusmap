@@ -1,4 +1,4 @@
-# 프로젝트 진행 상황 및 맥락 요약 (2025-10-26)
+# 프로젝트 진행 상황 및 맥락 요약 (2025-10-28)
 
 ## 1. 프로젝트 개요
 
@@ -32,31 +32,48 @@
 
 ## 3. 완료된 작업 (The "What")
 
-- **개발 환경**: 프로젝트 전용 Python 가상 환경(`venv`) 설정 완료.
-- **데이터 모델링 (`main/models.py`)**:
-  - `HangJeongDong`, `BusStop`, `BusData` 기본 모델 설계 확정.
-  - 데이터 아카이빙을 위한 `HangJeongDongHistory`, `BusStopHistory`, `BusDataHistory` 모델 추가 완료.
+-   **개발 환경**: 프로젝트 전용 Python 가상 환경(`venv`) 설정 완료.
+-   **데이터 모델링 (`main/models.py`)**:
+    -   `HangJeongDong`, `BusStop`, `BusData` 기본 모델 설계 확정.
+    -   데이터 아카이빙을 위한 `HangJeongDongHistory`, `BusStopHistory`, `BusDataHistory` 모델 추가 완료.
 
-- **데이터 수집 스크립트 (`main/management/commands/`)**:
-  - **`fetch_bus_data.py`**: `CardBusStatisticsServiceNew` API를 사용하여 노선/정류장별 일일 승하차 인원 데이터를 수집하는 최종 스크립트 완성.
-  - **데이터 아카이빙 시스템 구축 완료**:
-    - `fetch_bus_data.py`: 매일 실행 시, 기존 `BusData`의 모든 데이터를 `BusDataHistory`로 이동시킨 후 새로운 데이터를 수집하도록 수정.
-    - `fetch_hangjeongdong_data.py`, `fetch_busstop_data.py`: 단순 덮어쓰기 방식에서, API 데이터와 DB 데이터를 비교하여 **변경분이 있을 경우에만** 변경 전 데이터를 History 테이블에 저장하는 효율적인 방식으로 로직을 전면 수정. `bulk_create`, `bulk_update`를 사용하여 성능 최적화.
+-   **데이터 수집 스크립트 (`main/management/commands/`)**:
+    -   **`fetch_bus_data.py`**: `CardBusStatisticsServiceNew` API를 사용하여 노선/정류장별 일일 승하차 인원 데이터를 수집하는 최종 스크립트 완성.
+    -   **데이터 아카이빙 시스템 구축 완료**:
+        -   `fetch_bus_data.py`: 매일 실행 시, 기존 `BusData`의 모든 데이터를 `BusDataHistory`로 이동시킨 후 새로운 데이터를 수집하도록 수정.
+        -   `fetch_hangjeongdong_data.py`, `fetch_busstop_data.py`: 단순 덮어쓰기 방식에서, API 데이터와 DB 데이터를 비교하여 **변경분이 있을 경우에만** 변경 전 데이터를 History 테이블에 저장하는 효율적인 방식으로 로직을 전면 수정. `bulk_create`, `bulk_update`를 사용하여 성능 최적화.
 
-- **관리자 페이지 (`main/admin.py`)**:
-  - 모든 `History` 모델을 관리자 페이지에 등록하여 데이터 조회 및 관리 편의성 확보.
+-   **관리자 페이지 (`main/admin.py`)**:
+    -   모든 `History` 모델을 관리자 페이지에 등록하여 데이터 조회 및 관리 편의성 확보.
+
+-   **`fetch` 스크립트 코드 일관성 및 가독성 개선 (완료)**:
+    -   `fetch_bus_data.py`, `fetch_busstop_data.py`, `fetch_hangjeongdong_data.py` 세 파일 모두 `_fetch_data`, `_parse_data`, `_save_data` 패턴을 적용하여 내부 로직을 분리하고 코드 가독성을 향상시켰습니다.
+    -   API URL, 응답 데이터, 배치 처리 관련 변수명 등을 엄격하게 통일하여 코드 일관성을 극대화했습니다.
+    -   `stdout_logger`와 `style_logger`를 모든 유틸리티 함수에 일관되게 전달하도록 수정하여 로깅 시스템의 오류를 해결했습니다.
+    -   `save_bus_data` 함수에 `target_date`의 데이터가 이미 DB에 존재하는 경우 저장을 건너뛰는 로직을 추가하여 불필요한 데이터 중복 및 용량 낭비를 방지했습니다.
+
+-   **`main/utils.py` 파일에 공통 헬퍼 함수 분리 (완료)**:
+    -   `main/utils.py` 파일을 새로 생성하고, 각 `fetch_*.py` 파일에 있던 `_fetch_data`, `_parse_data`, `_save_data` 헬퍼 함수들을 `main/utils.py`로 이동시켰습니다.
+    -   이 함수들은 `fetch_bus_data_from_api`, `parse_bus_data`, `save_bus_data` 등과 같이 데이터 종류를 명시하는 이름으로 변경하여 모듈의 역할 분리 및 코드 중복 제거를 달성했습니다.
+    -   각 `fetch_*.py` management command 파일들은 이제 `main/utils.py`에서 해당 유틸리티 함수들을 임포트하여 사용합니다.
+
+-   **데이터 수집 자동화 (스케줄러 구현) (완료)**:
+    -   `main/apps.py`의 `ready()` 메서드 내에 스케줄러 로직을 직접 구현하여 Django MVT 패턴에 부합하도록 했습니다.
+    -   `threading.Timer`를 사용하여 버스 승하차 정보는 일일 간격으로, 행정동 및 버스 정류장 정보는 월별 간격으로 자동 수집되도록 설정했습니다.
+    -   개발 서버의 리로드 시 스케줄러가 여러 번 실행되는 문제를 `os.environ.get('RUN_MAIN', None) != 'true'` 조건으로 해결했습니다.
+    -   앱 초기화 중 데이터베이스 접근 경고(`RuntimeWarning`)를 해결하기 위해 스케줄러의 최초 실행을 짧은 지연 시간 후에 시작하도록 조정했습니다.
+    -   초기 실행 시 로그 메시지가 섞이는 것을 방지하기 위해, 일일 스케줄러의 첫 실행이 완료된 후 월별 스케줄러의 첫 실행이 시작되도록 순차적 실행을 구현했습니다.
 
 ---
 
 ## 4. 향후 계획 (The "What Next")
 
-- **`fetch` 스크립트 코드 일관성 및 가독성 개선:**
-  - `fetch_bus_data.py` 파일에 `_fetch_data`, `_parse_data`, `_save_data` 패턴을 적용하여 내부 로직을 분리하고 코드 가독성을 향상시킬 예정.
-  - (향후 `main/utils.py` 파일에 공통 헬퍼 함수들을 분리하여 모듈의 역할 분리 및 코드 중복 제거 예정.)
-- **데이터 수집 자동화 (스케줄러 구현):**
-  - 일정 시간마다 `fetch` 명령어들을 자동으로 실행하는 스케줄러 기능을 구현할 예정. 이를 통해 데이터가 주기적으로 최신화되도록 시스템을 자동화.
-  - 교수님 예제 파일(`apps.py`, `admin.py` 등)을 참고하여 Django MVT 패턴에 부합하는 구조로 구현 예정.
+-   **`fetch` 스크립트 코드 일관성 및 가독성 개선:**
+    -   (완료됨)
+-   **데이터 수집 자동화 (스케줄러 구현):**
+    -   (완료됨)
 
 ---
 
 _이 파일은 Gemini와의 대화 맥락을 저장하기 위해 생성되었습니다._
+
