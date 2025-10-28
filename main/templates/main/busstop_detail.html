@@ -95,6 +95,8 @@
         <a href="/" class="back-link">메인 페이지로 돌아가기</a>
     </div>
 
+    
+
 <script>
     // Quick date selection buttons
     document.addEventListener('DOMContentLoaded', function() {
@@ -124,52 +126,66 @@
     });
 
     // Chart.js rendering
+    const chartLabels = {{ chart_labels|safe }};
+    const chartDataOn = {{ chart_data_on|safe }};
+    const chartDataOff = {{ chart_data_off|safe }};
+
     const ctx = document.getElementById('busUsageChart').getContext('2d');
-    const busUsageChart = new Chart(ctx, 
-    {
-        type: 'line',
-        data: {
-            labels: {{ chart_labels|safe }},
-            datasets: [
-                {
-                    label: '승차 인원',
-                    data: {{ chart_data_on|safe }},
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    fill: false,
-                    tension: 0.1
-                },
-                {
-                    label: '하차 인원',
-                    data: {{ chart_data_off|safe }},
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    fill: false,
-                    tension: 0.1
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                x: {
-                    display: true,
-                    title: {
-                        display: true,
-                        text: '날짜'
-                    }
-                },
-                y: {
-                    display: true,
-                    title: {
-                        display: true,
-                        text: '인원수'
+
+    // 데이터가 있을 때만 차트를 렌더링합니다.
+    if (chartLabels.length > 0) {
+        const busUsageChart = new Chart(ctx, 
+        {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [
+                    {
+                        label: '승차 인원',
+                        data: chartDataOn,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: false,
+                        tension: 0.1
                     },
-                    beginAtZero: true
+                    {
+                        label: '하차 인원',
+                        data: chartDataOff,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        fill: false,
+                        tension: 0.1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: '날짜'
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: '인원수'
+                        },
+                        beginAtZero: true
+                    }
                 }
             }
-        }
-});
+        });
+    } else {
+        // 데이터가 없을 경우 캔버스에 메시지를 표시합니다.
+        ctx.font = "16px 'Malgun Gothic', sans-serif";
+        ctx.fillStyle = "#888";
+        ctx.textAlign = "center";
+        ctx.fillText("표시할 기간의 데이터가 없습니다.", ctx.canvas.width / 2, 50);
+    }
 </script>
 
 </body>
