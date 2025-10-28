@@ -14,7 +14,20 @@
         th { background-color: #f2f2f2; }
         .back-link { margin-top: 1.5em; display: inline-block; }
         .filter-form { background-color: #f4f4f4; padding: 1em; border-radius: 5px; margin-top: 1.5em; }
-        .quick-select button { margin-right: 5px; }
+        .btn-quick-select {
+            margin-right: 5px;
+            text-decoration: none;
+            color: #333;
+            background-color: #e7e7e7;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 14px;
+            font-family: sans-serif;
+        }
+        .btn-quick-select:hover {
+            background-color: #ddd;
+        }
         #chart-container { margin-top: 2em; }
     </style>
 </head>
@@ -38,12 +51,21 @@
                 <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
                 <label for="end_date">종료일:</label>
                 <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+                <label for="hour">시간대:</label>
+                <select name="hour" id="hour">
+                    <option value="">전체 시간</option>
+                    {% for hour in hours_range %}
+                        <option value="{{ hour }}" {% if selected_hour == hour|stringformat:"s" %}selected{% endif %}>
+                            {{ hour|stringformat:"02d" }}:00
+                        </option>
+                    {% endfor %}
+                </select>
                 <br><br>
                 <div class="quick-select">
                     <strong>빠른 선택:</strong>
-                    <button type="button" data-days="7">지난 7일</button>
-                    <button type="button" data-days="30">지난 30일</button>
-                    <button type="button" data-months="1">지난 1개월</button>
+                    <a href="?start_date={{ quick_dates.seven_days_ago_str }}&end_date={{ quick_dates.today_str }}" class="btn-quick-select">지난 7일</a>
+                    <a href="?start_date={{ quick_dates.thirty_days_ago_str }}&end_date={{ quick_dates.today_str }}" class="btn-quick-select">지난 30일</a>
+                    <a href="?start_date={{ quick_dates.one_month_ago_str }}&end_date={{ quick_dates.today_str }}" class="btn-quick-select">지난 1개월</a>
                 </div>
                 <br>
                 <button type="submit">조회</button>
@@ -95,40 +117,11 @@
         <a href="/" class="back-link">메인 페이지로 돌아가기</a>
     </div>
 
-    
-
 <script>
-    // Quick date selection buttons
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('filter-form');
-        const startDateInput = document.getElementById('start_date');
-        const endDateInput = document.getElementById('end_date');
-
-        document.querySelectorAll('.quick-select button').forEach(button => {
-            button.addEventListener('click', function() {
-                const days = this.dataset.days;
-                const months = this.dataset.months;
-                const endDate = new Date();
-                let startDate = new Date();
-
-                if (days) {
-                    startDate.setDate(endDate.getDate() - (parseInt(days) - 1));
-                } else if (months) {
-                    startDate.setMonth(endDate.getMonth() - parseInt(months));
-                }
-                
-                endDateInput.value = endDate.toISOString().split('T')[0];
-                startDateInput.value = startDate.toISOString().split('T')[0];
-                
-                form.submit();
-            });
-        });
-    });
-
     // Chart.js rendering
-    const chartLabels = {{ chart_labels|safe }};
-    const chartDataOn = {{ chart_data_on|safe }};
-    const chartDataOff = {{ chart_data_off|safe }};
+    const chartLabels = JSON.parse('{{ chart_labels|escapejs }}');
+    const chartDataOn = JSON.parse('{{ chart_data_on|escapejs }}');
+    const chartDataOff = JSON.parse('{{ chart_data_off|escapejs }}');
 
     const ctx = document.getElementById('busUsageChart').getContext('2d');
 

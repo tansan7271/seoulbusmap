@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import HangJeongDong, BusStop, BusData, HangJeongDongHistory, BusStopHistory
+from .models import HangJeongDong, BusStop, BusData, HangJeongDongHistory, BusStopHistory, BusDataHistory
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Avg, Sum, Count
@@ -37,19 +37,27 @@ def index(request):
 def busstop_detail(request, busstop_id):
     bus_stop = BusStop.objects.get(busstop_id=busstop_id)
 
-    # --- Date Filtering ---
-    default_end_date = timezone.now().date()
+    # --- Date & Time Filtering ---
+    today = timezone.now().date()
+    default_end_date = today
     default_start_date = default_end_date - timedelta(days=6)
     
     start_date_str = request.GET.get('start_date', default_start_date.strftime('%Y-%m-%d'))
     end_date_str = request.GET.get('end_date', default_end_date.strftime('%Y-%m-%d'))
+    selected_hour_str = request.GET.get('hour', '') # Hour filter
 
     # --- Data Query ---
     bus_data_history = BusDataHistory.objects.filter(
         busstop_id=busstop_id,
         timestamp__date__gte=start_date_str,
         timestamp__date__lte=end_date_str
-    ).order_by('timestamp')
+    )
+
+    # Apply hour filtering if a specific hour is selected
+    if selected_hour_str.isdigit():
+        bus_data_history = bus_data_history.filter(timestamp__hour=int(selected_hour_str))
+
+    bus_data_history = bus_data_history.order_by('timestamp')
 
     # --- Summary Statistics ---
     stats = bus_data_history.aggregate(
@@ -57,24 +65,48 @@ def busstop_detail(request, busstop_id):
         total_passengers_off=Sum('passengers_off')
     )
     
-    # Calculate busiest hour
-    busiest_hour_data = bus_data_history.annotate(
-        hour=TruncHour('timestamp')
-    ).values('hour').annotate(
-        total_on=Sum('passengers_on')
-    ).order_by('-total_on').first()
+    # Calculate busiest hour (only makes sense when viewing all day)
+    busiest_hour_data = None
+    if not selected_hour_str:
+        busiest_hour_data = bus_data_history.annotate(
+            hour=TruncHour('timestamp')
+        ).values('hour').annotate(
+            total_on=Sum('passengers_on')
+        ).order_by('-total_on').first()
 
     # --- Chart Data Preparation ---
-    daily_summary = bus_data_history.annotate(
-        day=TruncDay('timestamp')
-    ).values('day').annotate(
-        daily_on=Sum('passengers_on'),
-        daily_off=Sum('passengers_off')
-    ).order_by('day')
+    # Chart logic changes depending on whether an hour is selected
+    if selected_hour_str.isdigit():
+        # When an hour is selected, group by day
+        daily_summary = bus_data_history.annotate(
+            day=TruncDay('timestamp')
+        ).values('day').annotate(
+            daily_on=Sum('passengers_on'),
+            daily_off=Sum('passengers_off')
+        ).order_by('day')
+        chart_labels = [item['day'].strftime('%Y-%m-%d') for item in daily_summary]
+        chart_data_on = [item['daily_on'] for item in daily_summary]
+        chart_data_off = [item['daily_off'] for item in daily_summary]
+    else:
+        # When viewing all day, group by hour
+        hourly_summary = bus_data_history.annotate(
+            hour=TruncHour('timestamp')
+        ).values('hour').annotate(
+            total_on=Sum('passengers_on'),
+            total_off=Sum('passengers_off')
+        ).order_by('hour')
+        chart_labels = [item['hour'].strftime('%H:00') for item in hourly_summary]
+        chart_data_on = [item['total_on'] for item in hourly_summary]
+        chart_data_off = [item['total_off'] for item in hourly_summary]
 
-    chart_labels = [item['day'].strftime('%Y-%m-%d') for item in daily_summary]
-    chart_data_on = [item['daily_on'] for item in daily_summary]
-    chart_data_off = [item['daily_off'] for item in daily_summary]
+
+    # --- Quick Date Range Links ---
+    quick_dates = {
+        'today_str': today.strftime('%Y-%m-%d'),
+        'seven_days_ago_str': (today - timedelta(days=6)).strftime('%Y-%m-%d'),
+        'thirty_days_ago_str': (today - timedelta(days=29)).strftime('%Y-%m-%d'),
+        'one_month_ago_str': (today - timedelta(days=29)).strftime('%Y-%m-%d'), # 편의상 30일로 통일
+    }
 
     # --- Context ---
     context = {
@@ -87,5 +119,10 @@ def busstop_detail(request, busstop_id):
         'chart_labels': json.dumps(chart_labels),
         'chart_data_on': json.dumps(chart_data_on),
         'chart_data_off': json.dumps(chart_data_off),
+        'quick_dates': quick_dates,
+        'hours_range': range(24),
+        'selected_hour': selected_hour_str,
     }
+
+    
     return render(request, 'main/busstop_detail.html', context)
