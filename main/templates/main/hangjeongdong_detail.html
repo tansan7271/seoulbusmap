@@ -1,0 +1,82 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ selected_hjd.name }} - 행정동 상세 정보</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+</head>
+<body>
+    <header class="sticky-header">
+        <h1>
+            <a href="{% url 'index' %}">
+                <img src="{% static 'main/images/seoulbusmaplogo_garo.png' %}" alt="홈으로" class="breadcrumb-logo">
+            </a> &gt; {{ selected_hjd.name }}
+        </h1>
+    </header>
+
+    <div class="container">
+        <p class="description">
+            선택한 행정동에 소속된 버스 정류장의 목록입니다. 세부 승하차 정보를 조회할 정류장을 선택하십시오.
+        </p>
+
+        <div class="selector-form">
+            <form>
+                <label for="hjd_code">행정동 선택:</label>
+                <select name="hjd_code" id="hjd_code" onchange="navigateToHjd()">
+                    <option value="">--- 다른 행정동 선택 ---</option>
+                    {% for hjd in hjd_list %}
+                        <option value="{{ hjd.district_id }}" {% if hjd.district_id == selected_hjd_code %}selected{% endif %}>
+                            {{ hjd.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+
+        {% if selected_hjd %}
+            <div class="summary">
+                <h2>{{ selected_hjd.name }} 요약 정보</h2>
+                <p><strong>행정동 코드:</strong> {{ selected_hjd.district_id }}</p>
+                <p><strong>총 생활 인구수:</strong> {{ selected_hjd.population|default:"정보 없음" }}명</p>
+                <p><strong>버스 정류장 수:</strong> {{ bus_stop_count }}개</p>
+            </div>
+
+            <h2>해당 행정동 내 버스 정류장 목록</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>정류장 ID</th>
+                        <th>정류장 이름</th>
+                        <th>최신 승하차 인원 ({{ latest_data_date|date:"Y-m-d" }})</th>
+                        <th>활성화 여부</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stop in bus_stops %}
+                        <tr>
+                            <td>{{ stop.busstop_id }}</td>
+                            <td><a href="{% url 'busstop_detail' hjd_code=selected_hjd_code busstop_id=stop.busstop_id %}">{{ stop.name }}</a></td>
+                            <td>{{ stop.latest_passenger_count|default:"-" }}</td>
+                            <td>{{ stop.is_active|yesno:"활성,비활성" }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">이 행정동에는 버스 정류장 정보가 없습니다.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+    <script>
+        function navigateToHjd() {
+            const select = document.getElementById('hjd_code');
+            const selectedCode = select.value;
+            if (selectedCode) {
+                window.location.href = `/hangjeongdong/${selectedCode}/`;
+            }
+        }
+    </script>
+</body>
+</html>

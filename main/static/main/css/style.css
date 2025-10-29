@@ -1,0 +1,129 @@
+body {
+  font-family: sans-serif;
+  margin: 0; /* 헤더가 상단에 붙도록 body 마진 제거 */
+  padding-top: 50px; /* 고정된 헤더의 높이에 맞게 패딩 조정 */
+}
+
+.sticky-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 15px 5%;
+  z-index: 1000;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sticky-header h1 {
+  font-size: 1.2rem; /* 기본 h1 크기보다 작게 조절 */
+}
+
+h1 {
+  color: #333;
+  margin: 0; /* 헤더 안의 h1 마진 제거 */
+}
+
+h1 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1 a:hover {
+  text-decoration: underline;
+}
+
+.logo-image {
+  max-width: 500px; /* 로고의 최대 너비 */
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 20px auto; /* 로고 중앙 정렬 */
+}
+
+.breadcrumb-logo {
+  height: 1.2em; /* 제목 텍스트와 높이를 맞춤 */
+  vertical-align: middle; /* 텍스트와 수직 중앙 정렬 */
+  margin-right: 5px;
+}
+
+.container {
+  max-width: 960px;
+  margin: auto;
+  padding: 20px; /* 기존 body의 margin 대신 container에 패딩 적용 */
+}
+
+.description {
+  background-color: #f4f4f4;
+  padding: 1em;
+  border-radius: 5px;
+}
+
+.selector-form {
+  margin-top: 1.5em;
+}
+
+.summary {
+  margin-top: 1.5em;
+  padding: 1em;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.5em;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+.update-status {
+  margin-top: 2em;
+  padding: 1em;
+  border-top: 2px solid #333;
+  font-size: 0.9em;
+  color: #555;
+}
+
+.back-link {
+  margin-top: 1.5em;
+  display: inline-block;
+}
+
+.filter-form {
+  background-color: #f4f4f4;
+  padding: 1em;
+  border-radius: 5px;
+  margin-top: 1.5em;
+}
+
+.btn-quick-select {
+  margin-right: 5px;
+  text-decoration: none;
+  color: #333;
+  background-color: #e7e7e7;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+  font-family: sans-serif;
+}
+
+.btn-quick-select:hover {
+  background-color: #ddd;
+}
+
+#chart-container {
+  margin-top: 2em;
+}

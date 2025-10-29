@@ -1,78 +1,29 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>서울시 행정동별 버스 인프라 탐색기</title>
-    <style>
-        body { font-family: sans-serif; margin: 2em; }
-        h1, h2 { color: #333; }
-        .container { max-width: 960px; margin: auto; }
-        .description { background-color: #f4f4f4; padding: 1em; border-radius: 5px; }
-        .selector-form { margin-top: 1.5em; }
-        .summary { margin-top: 1.5em; padding: 1em; border: 1px solid #ddd; border-radius: 5px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1.5em; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .update-status { margin-top: 2em; padding: 1em; border-top: 2px solid #333; font-size: 0.9em; color: #555; }
-    </style>
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
 </head>
 <body>
     <div class="container">
-        <h1>서울시 행정동별 버스 인프라 현황</h1>
+        <img src="{% static 'main/images/seoulbusmaplogo.png' %}" alt="서울시 행정동별 버스 인프라 탐색기 로고" class="logo-image">
         <p class="description">
-            본 페이지는 서울시 행정동별 인구 정보와 버스 정류장 데이터를 제공하여, 향후 교통 소외 지역 분석을 위한 기초 자료를 탐색할 수 있도록 돕습니다.
+            데이터를 조회할 행정동을 선택하십시오.
         </p>
 
         <div class="selector-form">
-            <form method="get" action="">
+            <form id="hjd-form">
                 <label for="hjd_code">행정동 선택:</label>
-                <select name="hjd_code" id="hjd_code" onchange="this.form.submit()">
+                <select name="hjd_code" id="hjd_code" onchange="navigateToHjd()">
                     <option value="">--- 행정동을 선택하세요 ---</option>
                     {% for hjd in hjd_list %}
-                        <option value="{{ hjd.district_id }}" {% if hjd.district_id == selected_hjd_code %}selected{% endif %}>
-                            {{ hjd.name }}
-                        </option>
+                        <option value="{{ hjd.district_id }}">{{ hjd.name }}</option>
                     {% endfor %}
                 </select>
             </form>
         </div>
-
-        {% if selected_hjd %}
-            <div class="summary">
-                <h2>{{ selected_hjd.name }} 요약 정보</h2>
-                <p><strong>행정동 코드:</strong> {{ selected_hjd.district_id }}</p>
-                <p><strong>총 생활 인구수:</strong> {{ selected_hjd.population|default:"정보 없음" }}명</p>
-                <p><strong>버스 정류장 수:</strong> {{ bus_stop_count }}개</p>
-            </div>
-
-            <h2>해당 행정동 내 버스 정류장 목록</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>정류장 ID</th>
-                        <th>정류장 이름</th>
-                        <th>경도</th>
-                        <th>위도</th>
-                        <th>활성화 여부</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for stop in bus_stops %}
-                        <tr>
-                            <td>{{ stop.busstop_id }}</td>
-                            <td><a href="/busstop/{{ stop.busstop_id }}/">{{ stop.name }}</a></td>
-                            <td>{{ stop.longitude }}</td>
-                            <td>{{ stop.latitude }}</td>
-                            <td>{{ stop.is_active|yesno:"활성,비활성" }}</td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="5">이 행정동에는 버스 정류장 정보가 없습니다.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endif %}
 
         <div class="update-status">
             <h2>데이터 업데이트 현황</h2>
@@ -81,5 +32,15 @@
             <p><strong>승하차 데이터 최종 업데이트:</strong> {{ last_busdata_update_time|date:"Y-m-d H:i"|default:"업데이트 기록 없음" }}</p>
         </div>
     </div>
+
+    <script>
+        function navigateToHjd() {
+            const select = document.getElementById('hjd_code');
+            const selectedCode = select.value;
+            if (selectedCode) {
+                window.location.href = `/hangjeongdong/${selectedCode}/`;
+            }
+        }
+    </script>
 </body>
 </html>

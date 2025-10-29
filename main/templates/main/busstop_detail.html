@@ -1,46 +1,31 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>{{ bus_stop.name }} - 정류장 상세 정보</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { font-family: sans-serif; margin: 2em; }
-        h1, h2 { color: #333; }
-        .container { max-width: 960px; margin: auto; }
-        .summary { margin-top: 1.5em; padding: 1em; border: 1px solid #ddd; border-radius: 5px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1.5em; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .back-link { margin-top: 1.5em; display: inline-block; }
-        .filter-form { background-color: #f4f4f4; padding: 1em; border-radius: 5px; margin-top: 1.5em; }
-        .btn-quick-select {
-            margin-right: 5px;
-            text-decoration: none;
-            color: #333;
-            background-color: #e7e7e7;
-            padding: 5px 10px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            font-size: 14px;
-            font-family: sans-serif;
-        }
-        .btn-quick-select:hover {
-            background-color: #ddd;
-        }
-        #chart-container { margin-top: 2em; }
-    </style>
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
 </head>
 <body>
+    <header class="sticky-header">
+        <h1>
+            <a href="{% url 'index' %}">
+                <img src="{% static 'main/images/seoulbusmaplogo_garo.png' %}" alt="홈으로" class="breadcrumb-logo">
+            </a> &gt; 
+            <a href="{% url 'hangjeongdong_detail' hjd_code=hangjeongdong.district_id %}">{{ hangjeongdong.name }}</a> &gt; 
+            {{ bus_stop.name }}
+        </h1>
+    </header>
+
     <div class="container">
-        <h1>{{ bus_stop.name }} ({{ bus_stop.busstop_id }})</h1>
+        <p class="description">해당 정류장에 대한 승하차 정보입니다. 일자별 데이터 조회가 가능합니다.</p>
 
         <div class="summary">
             <h2>기본 정보</h2>
-            <p><strong>정류장 이름:</strong> {{ bus_stop.name }}</p>
-            <p><strong>정류장 ID:</strong> {{ bus_stop.busstop_id }}</p>
+            <p><strong>정류장 이름:</strong> {{ bus_stop.name }} ({{ bus_stop.busstop_id }})</p>
             <p><strong>좌표:</strong> {{ bus_stop.latitude }}, {{ bus_stop.longitude }}</p>
-            <p><strong>소속 행정동 ID:</strong> {{ bus_stop.district_id }}</p>
+            <p><strong>소속 행정동:</strong> {{ hangjeongdong.name }} ({{ bus_stop.district_id }})</p>
         </div>
 
         <h2>상세 승하차 데이터 조회</h2>
@@ -51,21 +36,12 @@
                 <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
                 <label for="end_date">종료일:</label>
                 <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
-                <label for="hour">시간대:</label>
-                <select name="hour" id="hour">
-                    <option value="">전체 시간</option>
-                    {% for hour in hours_range %}
-                        <option value="{{ hour }}" {% if selected_hour == hour|stringformat:"s" %}selected{% endif %}>
-                            {{ hour|stringformat:"02d" }}:00
-                        </option>
-                    {% endfor %}
-                </select>
                 <br><br>
                 <div class="quick-select">
                     <strong>빠른 선택:</strong>
                     <a href="?start_date={{ quick_dates.seven_days_ago_str }}&end_date={{ quick_dates.today_str }}" class="btn-quick-select">지난 7일</a>
                     <a href="?start_date={{ quick_dates.thirty_days_ago_str }}&end_date={{ quick_dates.today_str }}" class="btn-quick-select">지난 30일</a>
-                    <a href="?start_date={{ quick_dates.one_month_ago_str }}&end_date={{ quick_dates.today_str }}" class="btn-quick-select">지난 1개월</a>
+                    <a href="?start_date={{ quick_dates.three_months_ago_str }}&end_date={{ quick_dates.today_str }}" class="btn-quick-select">지난 3개월</a>
                 </div>
                 <br>
                 <button type="submit">조회</button>
@@ -81,11 +57,6 @@
             <h2>이용 현황 요약 ({{ start_date }} ~ {{ end_date }})</h2>
             <p><strong>기간 내 총 승차 인원:</strong> {{ stats.total_passengers_on|floatformat:0|default:"0" }}명</p>
             <p><strong>기간 내 총 하차 인원:</strong> {{ stats.total_passengers_off|floatformat:0|default:"0" }}명</p>
-            {% if busiest_hour %}
-                <p><strong>가장 붐비는 시간대:</strong> {{ busiest_hour.hour|date:"H" }}시 (총 {{ busiest_hour.total_on }}명 승차)</p>
-            {% else %}
-                <p><strong>가장 붐비는 시간대:</strong> 데이터 없음</p>
-            {% endif %}
         </div>
 
         <h2>상세 데이터 테이블</h2>
@@ -99,7 +70,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for data in bus_data %}
+                {% for data in bus_records %}
                     <tr>
                         <td>{{ data.timestamp }}</td>
                         <td>{{ data.bus_id }}</td>
@@ -114,11 +85,11 @@
             </tbody>
         </table>
 
-        <a href="/" class="back-link">메인 페이지로 돌아가기</a>
+        <a href="{% url 'hangjeongdong_detail' hjd_code=bus_stop.district_id %}" class="back-link">이전 페이지로 돌아가기</a>
     </div>
 
 <script>
-    // Chart.js rendering
+    // Chart.js 렌더링
     const chartLabels = JSON.parse('{{ chart_labels|escapejs }}');
     const chartDataOn = JSON.parse('{{ chart_data_on|escapejs }}');
     const chartDataOff = JSON.parse('{{ chart_data_off|escapejs }}');
