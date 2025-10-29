@@ -15,12 +15,15 @@
 본 프로젝트는 초기 설계 이후, 과제의 요구사항과 확장성을 고려하여 여러 차례의 논의를 통해 설계를 개선하고 발전시켰습니다.
 
 1.  **`management/commands` 사용**:
+
     - **결정**: 사용자 요청과 무관한 '배경 작업'의 성격을 명확히 하고, Django의 표준적인 '관리자 명령어' 기능을 활용하기로 결정. 이는 **'모듈의 목적과 역할 분리'** 원칙을 만족시키는 전문적인 구조.
 
 2.  **데이터베이스 관계 설정 (`ForeignKey` 제거)**:
+
     - **결정**: **수업에서 배우지 않은 내용**을 보고서에 설명하기 어려운 점과, **데이터 수집 기능 자체가 핵심**이라는 점을 고려. 최종적으로 각 모델이 독립적으로 ID를 저장하는 **더 단순하고 직관적인 구조**로 변경.
 
 3.  **데이터 처리 로직 개선**:
+
     - **인구 데이터 문제**: '생활인구' API가 시간대별(24개) 데이터를 반환하는 것을 확인, **'일 평균 인구수'**를 계산하여 저장하는 방식으로 로직을 개선.
     - **정류장 ID 표준화**: 여러 API에서 공통적으로 사용되는 9자리 표준 ID를 `busstop_id`의 기준으로 사용하기로 결정하여 데이터 정합성 확보.
 
@@ -32,48 +35,92 @@
 
 ## 3. 완료된 작업 (The "What")
 
--   **개발 환경**: 프로젝트 전용 Python 가상 환경(`venv`) 설정 완료.
--   **데이터 모델링 (`main/models.py`)**:
-    -   `HangJeongDong`, `BusStop`, `BusData` 기본 모델 설계 확정.
-    -   데이터 아카이빙을 위한 `HangJeongDongHistory`, `BusStopHistory`, `BusDataHistory` 모델 추가 완료.
+- **개발 환경**: 프로젝트 전용 Python 가상 환경(`venv`) 설정 완료.
+- **데이터 모델링 (`main/models.py`)**:
 
--   **데이터 수집 스크립트 (`main/management/commands/`)**:
-    -   **`fetch_bus_data.py`**: `CardBusStatisticsServiceNew` API를 사용하여 노선/정류장별 일일 승하차 인원 데이터를 수집하는 최종 스크립트 완성.
-    -   **데이터 아카이빙 시스템 구축 완료**:
-        -   `fetch_bus_data.py`: 매일 실행 시, 기존 `BusData`의 모든 데이터를 `BusDataHistory`로 이동시킨 후 새로운 데이터를 수집하도록 수정.
-        -   `fetch_hangjeongdong_data.py`, `fetch_busstop_data.py`: 단순 덮어쓰기 방식에서, API 데이터와 DB 데이터를 비교하여 **변경분이 있을 경우에만** 변경 전 데이터를 History 테이블에 저장하는 효율적인 방식으로 로직을 전면 수정. `bulk_create`, `bulk_update`를 사용하여 성능 최적화.
+  - `HangJeongDong`, `BusStop`, `BusData` 기본 모델 설계 확정.
+  - 데이터 아카이빙을 위한 `HangJeongDongHistory`, `BusStopHistory`, `BusDataHistory` 모델 추가 완료.
 
--   **관리자 페이지 (`main/admin.py`)**:
-    -   모든 `History` 모델을 관리자 페이지에 등록하여 데이터 조회 및 관리 편의성 확보.
+- **데이터 수집 스크립트 (`main/management/commands/`)**:
 
--   **`fetch` 스크립트 코드 일관성 및 가독성 개선 (완료)**:
-    -   `fetch_bus_data.py`, `fetch_busstop_data.py`, `fetch_hangjeongdong_data.py` 세 파일 모두 `_fetch_data`, `_parse_data`, `_save_data` 패턴을 적용하여 내부 로직을 분리하고 코드 가독성을 향상시켰습니다.
-    -   API URL, 응답 데이터, 배치 처리 관련 변수명 등을 엄격하게 통일하여 코드 일관성을 극대화했습니다.
-    -   `stdout_logger`와 `style_logger`를 모든 유틸리티 함수에 일관되게 전달하도록 수정하여 로깅 시스템의 오류를 해결했습니다.
-    -   `save_bus_data` 함수에 `target_date`의 데이터가 이미 DB에 존재하는 경우 저장을 건너뛰는 로직을 추가하여 불필요한 데이터 중복 및 용량 낭비를 방지했습니다.
+  - **`fetch_bus_data.py`**: `CardBusStatisticsServiceNew` API를 사용하여 노선/정류장별 일일 승하차 인원 데이터를 수집하는 최종 스크립트 완성.
+  - **데이터 아카이빙 시스템 구축 완료**:
+    - `fetch_bus_data.py`: 매일 실행 시, 기존 `BusData`의 모든 데이터를 `BusDataHistory`로 이동시킨 후 새로운 데이터를 수집하도록 수정.
+    - `fetch_hangjeongdong_data.py`, `fetch_busstop_data.py`: 단순 덮어쓰기 방식에서, API 데이터와 DB 데이터를 비교하여 **변경분이 있을 경우에만** 변경 전 데이터를 History 테이블에 저장하는 효율적인 방식으로 로직을 전면 수정. `bulk_create`, `bulk_update`를 사용하여 성능 최적화.
 
--   **`main/utils.py` 파일에 공통 헬퍼 함수 분리 (완료)**:
-    -   `main/utils.py` 파일을 새로 생성하고, 각 `fetch_*.py` 파일에 있던 `_fetch_data`, `_parse_data`, `_save_data` 헬퍼 함수들을 `main/utils.py`로 이동시켰습니다.
-    -   이 함수들은 `fetch_bus_data_from_api`, `parse_bus_data`, `save_bus_data` 등과 같이 데이터 종류를 명시하는 이름으로 변경하여 모듈의 역할 분리 및 코드 중복 제거를 달성했습니다.
-    -   각 `fetch_*.py` management command 파일들은 이제 `main/utils.py`에서 해당 유틸리티 함수들을 임포트하여 사용합니다.
+- **관리자 페이지 (`main/admin.py`)**:
 
--   **데이터 수집 자동화 (스케줄러 구현) (완료)**:
-    -   `main/apps.py`의 `ready()` 메서드 내에 스케줄러 로직을 직접 구현하여 Django MVT 패턴에 부합하도록 했습니다.
-    -   `threading.Timer`를 사용하여 버스 승하차 정보는 일일 간격으로, 행정동 및 버스 정류장 정보는 월별 간격으로 자동 수집되도록 설정했습니다.
-    -   개발 서버의 리로드 시 스케줄러가 여러 번 실행되는 문제를 `os.environ.get('RUN_MAIN', None) != 'true'` 조건으로 해결했습니다.
-    -   앱 초기화 중 데이터베이스 접근 경고(`RuntimeWarning`)를 해결하기 위해 스케줄러의 최초 실행을 짧은 지연 시간 후에 시작하도록 조정했습니다.
-    -   초기 실행 시 로그 메시지가 섞이는 것을 방지하기 위해, 일일 스케줄러의 첫 실행이 완료된 후 월별 스케줄러의 첫 실행이 시작되도록 순차적 실행을 구현했습니다.
+  - 모든 `History` 모델을 관리자 페이지에 등록하여 데이터 조회 및 관리 편의성 확보.
+
+- **`fetch` 스크립트 코드 일관성 및 가독성 개선 (완료)**:
+
+  - `fetch_bus_data.py`, `fetch_busstop_data.py`, `fetch_hangjeongdong_data.py` 세 파일 모두 `_fetch_data`, `_parse_data`, `_save_data` 패턴을 적용하여 내부 로직을 분리하고 코드 가독성을 향상시켰습니다.
+  - API URL, 응답 데이터, 배치 처리 관련 변수명 등을 엄격하게 통일하여 코드 일관성을 극대화했습니다.
+  - `stdout_logger`와 `style_logger`를 모든 유틸리티 함수에 일관되게 전달하도록 수정하여 로깅 시스템의 오류를 해결했습니다.
+  - `save_bus_data` 함수에 `target_date`의 데이터가 이미 DB에 존재하는 경우 저장을 건너뛰는 로직을 추가하여 불필요한 데이터 중복 및 용량 낭비를 방지했습니다.
+
+- **`main/utils.py` 파일에 공통 헬퍼 함수 분리 (완료)**:
+
+  - `main/utils.py` 파일을 새로 생성하고, 각 `fetch_*.py` 파일에 있던 `_fetch_data`, `_parse_data`, `_save_data` 헬퍼 함수들을 `main/utils.py`로 이동시켰습니다.
+  - 이 함수들은 `fetch_bus_data_from_api`, `parse_bus_data`, `save_bus_data` 등과 같이 데이터 종류를 명시하는 이름으로 변경하여 모듈의 역할 분리 및 코드 중복 제거를 달성했습니다.
+  - 각 `fetch_*.py` management command 파일들은 이제 `main/utils.py`에서 해당 유틸리티 함수들을 임포트하여 사용합니다.
+
+- **데이터 수집 자동화 (스케줄러 구현) (완료)**:
+  - `main/apps.py`의 `ready()` 메서드 내에 스케줄러 로직을 직접 구현하여 Django MVT 패턴에 부합하도록 했습니다.
+  - `threading.Timer`를 사용하여 버스 승하차 정보는 일일 간격으로, 행정동 및 버스 정류장 정보는 월별 간격으로 자동 수집되도록 설정했습니다.
+  - 개발 서버의 리로드 시 스케줄러가 여러 번 실행되는 문제를 `os.environ.get('RUN_MAIN', None) != 'true'` 조건으로 해결했습니다.
+  - 앱 초기화 중 데이터베이스 접근 경고(`RuntimeWarning`)를 해결하기 위해 스케줄러의 최초 실행을 짧은 지연 시간 후에 시작하도록 조정했습니다.
+  - 초기 실행 시 로그 메시지가 섞이는 것을 방지하기 위해, 일일 스케줄러의 첫 실행이 완료된 후 월별 스케줄러의 첫 실행이 시작되도록 순차적 실행을 구현했습니다.
 
 ---
 
-## 4. 향후 계획 (The "What Next")
+## 4. 최근 작업 및 설계 결정 (Recent Work & Design Decisions)
 
--   **`fetch` 스크립트 코드 일관성 및 가독성 개선:**
-    -   (완료됨)
--   **데이터 수집 자동화 (스케줄러 구현):**
-    -   (완료됨)
+- **4.1. 데이터 모델 `timestamp` 필드 일관성 및 관리자 페이지 가시성 확보**
+
+  - **문제점 인식:** `HangJeongDong` 및 `BusStop` 모델의 `timestamp` 필드가 `auto_now=True`로 설정되어 있음에도 불구하고 관리자 페이지에서 보이지 않으며, `HangJeongDongHistory` 및 `BusStopHistory` 모델의 `timestamp` 필드에 `default=timezone.now`가 잘못 적용되어 마이그레이션 생성에 오류가 발생함을 확인.
+  - **해결 과정:**
+    - 기존 마이그레이션 파일(`0002_...py`) 및 데이터베이스(`db.sqlite3`)를 완전히 초기화하여 클린 상태로 복원.
+    - `main/models.py` 수정:
+      - `HangJeongDong` 및 `BusStop` 모델의 `timestamp` 필드를 `auto_now=True`로 변경 (데이터 수집 시점 자동 기록).
+      - `HangJeongDongHistory` 및 `BusStopHistory` 모델의 `timestamp` 필드에서 `default=timezone.now` 제거 (Hot 모델의 `timestamp` 값을 그대로 보존).
+    - `main/utils.py` 수정:
+      - `save_hangjeongdong_data` 및 `save_bus_stop_data` 함수에서 `History` 모델 객체 생성 시, 해당 Hot 모델의 `timestamp` 값을 명시적으로 전달하도록 로직 개선.
+    - `main/admin.py` 수정:
+      - `HangJeongDongAdmin` 및 `BusStopAdmin` 클래스에 `timestamp` 필드를 `readonly_fields`에 추가하여 관리자 페이지에서 가시성 확보 (편집은 불가, 조회는 가능).
+  - **결과:** 모델 정의의 일관성을 확보하고, 관리자 페이지에서 `timestamp` 필드를 올바르게 조회할 수 있게 되었으며, 성공적으로 마이그레이션을 재적용하고 데이터 수집 스크립트를 실행하여 데이터베이스를 채움.
+
+- **4.2. 보고서 목차 및 서론 작성**
+  프로젝트의 적절성 30% - 프로젝트의 배경과 목표, 계획과 수행 방안, 참고자료 등이 논리적이고 명확해야 합니다.
+  서버 설계 60% - 아래 항목들을 프로젝트 목표에 맞게 잘 만족시키는지를 평가합니다.
+  데이터베이스 스키마가 수집하고자 하는 데이터 및 그 목적에 잘 부합하는가 (공통)
+  각 파이썬 모듈이 목적과 역할에 맞게 잘 구성되어 있는가 (공통)
+  수집된 데이터를 조회, 관리하는 최소한의 기능들이 목적에 맞게 구현되어 있는가 (공통)
+  API의 종류 및 세부 구조 등이 클라이언트 친화적이며 목적에 맞게 잘 설계되었는가
+  서버 어플리케이션의 기능 및 구성이 신뢰할 만 하고 효율적으로 잘 작동하도록 설계되었는가
+  기타 서버의 역할 및 목표에 맞게 서버가 잘 설계되었는가
+  기술적 요소 가산점 5%
+  창의적 요소 가산점 5%
+
+      *   **목표:** 프로젝트의 목적과 주제를 명확히 전달하고, 교수님의 평가 항목을 모두 포괄하는 최종 보고서 작성을 위한 목차 구성 및 서론 작성.
+      *   **주요 내용:**
+          *   **목차 구성:** '프로젝트 적절성', '서버 설계', '가산점' 평가 항목을 고려하여 '서론', '시스템 아키텍처', '데이터베이스 설계', '백엔드 핵심 기능 구현', '사용자 인터페이스 구현', '결론'의 6개 챕터로 구성. 각 챕터별 세부 내용 및 평가 항목과의 연관성 명시.
+          *   **서론 작성:**
+              *   **배경 및 필요성:** 기존 '빈부격차' 강조 부분을 '인구 수요 대비 대중교통 공급의 적정성' 분석으로 초점 변경 및 분량 보강.
+              *   **프로젝트 개요:** 가설 검증을 넘어 '지속적으로 의미 있는 정보를 창출하는 살아있는 데이터 플랫폼' 구축이라는 비전을 강조하며, 핵심 기능(데이터 수집, 아카이빙, 자동화, 인터페이스) 상세 설명.
+          *   **시스템 아키텍처 내용 구체화:** 시스템 전체 동작 흐름, 모듈 분리 철학(`management/commands`, `utils.py`), 주요 파일별 역할 정의(`models.py`, `utils.py`, `management/commands/*.py`, `apps.py`, `admin.py`, `views.py`, `templates/`, `settings.py`, `urls.py`) 등 상세 내용 확정.
+          *   **보고서 내용 구성 방식 조정:** 모듈 분리 철학 등 상세 설명은 각 해당 파트(예: `models.py`는 '데이터베이스 설계' 파트에서, `management/commands`는 '백엔드 주요 기능' 파트에서)에서 '추가 노트' 형태로 덧붙여 설명하기로 결정. 이는 독자의 이해도를 높이기 위함.
+
+- **4.3. `JaChiGu` 관련 기능 구현 계획 취소**
+  - **결정:** `JaChiGu` 모델 추가 및 관련 데이터 수집 기능 구현 계획을 취소하고, 기존 `HangJeongDong` 모델을 중심으로 프로젝트를 진행하기로 결정.
+
+## 5. 향후 계획 (The "What Next")
+
+- **`fetch` 스크립트 코드 일관성 및 가독성 개선:**
+  - (완료됨)
+- **데이터 수집 자동화 (스케줄러 구현):**
+  - (완료됨)
 
 ---
 
 _이 파일은 Gemini와의 대화 맥락을 저장하기 위해 생성되었습니다._
-
