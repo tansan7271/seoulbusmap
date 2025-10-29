@@ -1,25 +1,29 @@
+import requests
+from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
-from .base_command import BaseFetchCommand
+from main.models import BusStop, BusStopHistory
 from main.utils import fetch_bus_stop_data_from_api, parse_bus_stop_data, save_bus_stop_data
 
-class Command(BaseFetchCommand):
-    service_name = 'fetch_busstop_data'
+class Command(BaseCommand):
     help = '서울시 버스 정류장 정보를 수집하고 아카이빙합니다.'
 
-    def get_api_keys(self):
-        return {
-            'seoul': settings.SEOUL_API_KEY,
-            'kakao': settings.KAKAO_API_KEY
-        }
+    def handle(self, *args, **options):
+        self.stdout.write(self.style.SUCCESS('[fetch_busstop_data] 버스 정류장 정보 수집 및 아카이빙을 시작합니다...'))
 
-    def fetch(self, api_keys):
-        """API로부터 버스 정류장 원본 데이터를 수집합니다."""
-        return fetch_bus_stop_data_from_api(api_keys['seoul'], self.stdout, self.style)
+        try:
+            seoul_api_key = settings.SEOUL_API_KEY
+            kakao_api_key = settings.KAKAO_API_KEY
 
-    def parse(self, fetch_result):
-        """수집된 원본 데이터를 파싱하여 처리 가능한 형태로 변환합니다."""
-        return parse_bus_stop_data(fetch_result, self.stdout, self.style)
+            # 1. Fetch Data
+            raw_data = fetch_bus_stop_data_from_api(seoul_api_key, self.stdout, self.style)
 
-    def save(self, parsed_data, api_keys):
-        """파싱된 데이터를 데이터베이스에 저장합니다."""
-        save_bus_stop_data(parsed_data, api_keys['kakao'], self.stdout, self.style)
+            # 2. Parse Data
+            parsed_data = parse_bus_stop_data(raw_data, self.stdout, self.style)
+
+            # 3. Save Data
+            save_bus_stop_data(parsed_data, kakao_api_key, self.stdout, self.style)
+
+            self.stdout.write(self.style.SUCCESS('[fetch_busstop_data] 모든 작업이 성공적으로 완료되었습니다.'))
+
+        except Exception as e:
+            raise CommandError(f'[fetch_busstop_data] 전체 작업 중 오류 발생: {e}')
