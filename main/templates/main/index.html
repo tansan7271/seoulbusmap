@@ -1,46 +1,75 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>서울시 행정동별 버스 인프라 탐색기</title>
-    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
-</head>
-<body>
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}" />
+  </head>
+  <body>
     <div class="container">
-        <img src="{% static 'main/images/seoulbusmaplogo.png' %}" alt="서울시 행정동별 버스 인프라 탐색기 로고" class="logo-image">
-        <p class="description">
-            데이터를 조회할 행정동을 선택하십시오.
+      <img
+        src="{% static 'main/images/seoulbusmaplogo.png' %}"
+        alt="서울시 행정동별 버스 인프라 탐색기 로고"
+        class="logo-image"
+      />
+      <p class="description">데이터를 조회할 행정동을 선택하십시오.</p>
+
+      <div class="selector-form">
+        <form id="hjd-form">
+          <label for="hjd_code">행정동 선택:</label>
+          <select name="hjd_code" id="hjd_code" onchange="navigateToHjd()">
+            <option value="">--- 행정동을 선택하세요 ---</option>
+            {% for hjd in hjd_list %}
+            <option value="{{ hjd.district_id }}">{{ hjd.name }}</option>
+            {% endfor %}
+          </select>
+        </form>
+      </div>
+
+      <div class="update-status">
+        <h2>데이터 업데이트 현황</h2>
+        <p>
+          <strong>행정동 데이터 최종 업데이트:</strong> {{
+          last_hjd_update_time|date:"Y-m-d H:i"|default:"업데이트 기록 없음" }}
         </p>
+        <p>
+          <strong>정류장 데이터 최종 업데이트:</strong> {{
+          last_busstop_update_time|date:"Y-m-d H:i"|default:"업데이트 기록 없음"
+          }}
+        </p>
+        <p>
+          <strong>승하차 데이터 최종 업데이트:</strong> {{
+          last_busdata_update_time|date:"Y-m-d H:i"|default:"업데이트 기록 없음"
+          }}
+        </p>
+      </div>
 
-        <div class="selector-form">
-            <form id="hjd-form">
-                <label for="hjd_code">행정동 선택:</label>
-                <select name="hjd_code" id="hjd_code" onchange="navigateToHjd()">
-                    <option value="">--- 행정동을 선택하세요 ---</option>
-                    {% for hjd in hjd_list %}
-                        <option value="{{ hjd.district_id }}">{{ hjd.name }}</option>
-                    {% endfor %}
-                </select>
-            </form>
-        </div>
-
-        <div class="update-status">
-            <h2>데이터 업데이트 현황</h2>
-            <p><strong>행정동 데이터 최종 업데이트:</strong> {{ last_hjd_update_time|date:"Y-m-d H:i"|default:"업데이트 기록 없음" }}</p>
-            <p><strong>정류장 데이터 최종 업데이트:</strong> {{ last_busstop_update_time|date:"Y-m-d H:i"|default:"업데이트 기록 없음" }}</p>
-            <p><strong>승하차 데이터 최종 업데이트:</strong> {{ last_busdata_update_time|date:"Y-m-d H:i"|default:"업데이트 기록 없음" }}</p>
-        </div>
+      <div style="text-align: center; margin-top: 30px">
+        <a
+          href="{% url 'analysis_report' %}"
+          class="btn-analysis"
+          style="
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+          "
+          >📊 데이터 분석 보고서 보기</a
+        >
+      </div>
     </div>
 
     <script>
-        function navigateToHjd() {
-            const select = document.getElementById('hjd_code');
-            const selectedCode = select.value;
-            if (selectedCode) {
-                window.location.href = `/hangjeongdong/${selectedCode}/`;
-            }
+      function navigateToHjd() {
+        const select = document.getElementById("hjd_code");
+        const selectedCode = select.value;
+        if (selectedCode) {
+          window.location.href = `/hangjeongdong/${selectedCode}/`;
         }
+      }
     </script>
-</body>
+  </body>
 </html>

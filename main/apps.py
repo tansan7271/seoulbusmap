@@ -64,7 +64,7 @@ class MainConfig(AppConfig):
     def ready(self):
         global scheduler_started
         # Django reloader가 아닌 메인 프로세스에서만 스케줄러를 시작
-        if not scheduler_started and os.environ.get('RUN_MAIN', None) != 'true' and sys.argv[1] == 'runserver':
+        if not scheduler_started and os.environ.get('RUN_MAIN', None) != 'true' and len(sys.argv) > 1 and sys.argv[1] == 'runserver':
             print("모든 스케줄러를 시작합니다...")
             scheduler_started = True
             

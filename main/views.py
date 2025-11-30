@@ -147,3 +147,69 @@ def busstop_detail(request, hjd_code, busstop_id):
     }
     
     return render(request, 'main/busstop_detail.html', context)
+
+
+
+from .analysis import get_analysis_data, perform_statistical_analysis
+
+def analysis_report(request):
+    """
+    분석 보고서를 생성하고 표시합니다.
+    """
+    # 1. 집계 데이터 가져오기
+    df = get_analysis_data()
+    
+    if df.empty:
+        context = {'error': '분석할 데이터가 없습니다.'}
+        return render(request, 'main/analysis_report.html', context)
+        
+    # 2. 분석 수행
+    results, valid_df = perform_statistical_analysis(df)
+    
+    # 3. 컨텍스트 준비
+    # 템플릿 필터 오류 방지를 위해 뷰에서 숫자를 문자열로 포맷팅합니다.
+    if results.get('macro'):
+        results['macro']['correlation'] = f"{results['macro']['correlation']:.4f}"
+        results['macro']['slope'] = f"{results['macro']['slope']:.4f}"
+        results['macro']['intercept'] = f"{results['macro']['intercept']:.2f}"
+        
+    for item in results.get('marginalized_top5', []):
+        item['population'] = f"{item['population']:.0f}"
+        item['busstop_count'] = f"{item['busstop_count']:.0f}"
+        item['predicted_stops'] = f"{item['predicted_stops']:.1f}"
+        item['residual'] = f"{item['residual']:.1f}"
+        
+    for item in results.get('oversupplied_top5', []):
+        item['population'] = f"{item['population']:.0f}"
+        item['busstop_count'] = f"{item['busstop_count']:.0f}"
+        item['predicted_stops'] = f"{item['predicted_stops']:.1f}"
+        item['residual'] = f"{item['residual']:.1f}"
+
+    for item in results.get('business_districts', []):
+        item['avg_weekday'] = f"{item['avg_weekday']:.0f}"
+        item['avg_weekend'] = f"{item['avg_weekend']:.0f}"
+        item['weekend_intensity_index'] = f"{item['weekend_intensity_index']:.2f}"
+
+    for item in results.get('cultural_districts', []):
+        item['avg_weekday'] = f"{item['avg_weekday']:.0f}"
+        item['avg_weekend'] = f"{item['avg_weekend']:.0f}"
+        item['weekend_intensity_index'] = f"{item['weekend_intensity_index']:.2f}"
+        
+    # 제외된 지역 포맷팅
+    for item in results.get('excluded_districts', []):
+        item['population'] = f"{item['population']:.0f}"
+        item['busstop_count'] = f"{item['busstop_count']:.0f}"
+
+    context = {
+        'macro': results.get('macro'),
+        'marginalized_top5': results.get('marginalized_top5'),
+        'oversupplied_top5': results.get('oversupplied_top5'),
+        'classification_counts': results.get('classification_counts'),
+        'business_districts': results.get('business_districts'),
+        'cultural_districts': results.get('cultural_districts'),
+        'excluded_districts': results.get('excluded_districts'), # 추가된 항목
+        'total_districts': len(valid_df),
+        'excluded_count': len(results.get('excluded_districts', [])),
+    }
+    
+    return render(request, 'main/analysis_report.html', context)
