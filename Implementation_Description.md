@@ -34,16 +34,47 @@
 
 ### 2.3 데이터 분석 모듈 (`analysis.py`)
 
-수집된 데이터를 바탕으로 통계적 유의미성을 도출하는 핵심 로직입니다.
+수집된 데이터를 바탕으로 통계적 유의미성을 도출하는 핵심 로직입니다. 이 모듈은 **'수집 -> 전처리 -> 통계 연산 -> 분류'**의 4단계 파이프라인으로 구성됩니다.
 
-- **전처리 (Preprocessing):**
-  - `pandas` 라이브러리를 활용하여 DB 데이터를 DataFrame으로 변환.
-  - 인구 0명 또는 정류장 0개인 이상치(Outlier)를 자동 식별 및 제외.
-- **통계 분석 (Statistical Analysis):**
-  - `numpy`를 활용한 선형 회귀 분석(Linear Regression) 수행.
-  - 잔차(Residual) 계산을 통해 '교통 소외 지역' 자동 탐지.
-- **지구 분류 (Classification):**
-  - 주말 집중도 지수(Weekend Intensity Index)를 산출하고, 분포 기반 임계값(0.65, 0.85)을 적용하여 행정동의 성격을 자동 분류.
+#### **1) 분석 로직 흐름 (Logic Flow)**
+
+1.  **데이터 로드 (Data Loading):**
+    - DB에서 `HangJeongDong`(인구), `BusStop`(정류장), `BusData`+`BusDataHistory`(승하차) 데이터를 모두 가져옵니다.
+    - 특히 승하차 데이터는 Hot/Cold 테이블을 병합하여 전체 기간을 확보합니다.
+2.  **전처리 및 집계 (Preprocessing & Aggregation):**
+    - **공간 결합:** 정류장별 데이터를 행정동(`district_id`) 기준으로 그룹화(Group By)합니다.
+    - **시간 요약:** 날짜별 데이터를 주중/주말(`is_weekend`)로 구분하여 일평균을 계산합니다.
+    - **결측 처리:** 데이터가 없는 날짜는 평균 계산에서 제외하고, 최종 결과의 결측치(NaN)는 0으로 채웁니다.
+3.  **통계 연산 (Statistical Calculation):**
+    - **상관 분석:** 인구수와 정류장 수 간의 피어슨 상관계수($r$)를 계산합니다.
+    - **회귀 분석:** `numpy.polyfit`으로 선형 회귀식($Y=aX+b$)을 도출하고, 각 행정동의 예측값($\hat{Y}$)과 잔차($e$)를 계산합니다.
+4.  **지구 분류 (Classification):**
+    - 주말 집중도 지수($WII$)를 산출합니다.
+    - 임계값(0.65, 0.85)을 기준으로 업무/주거/상업 지구로 라벨링합니다.
+
+#### **2) 로직 다이어그램 (Diagram Reference)**
+
+다이어그램 작성을 위한 참고용 구조도입니다.
+
+```mermaid
+graph TD
+    A[Database] -->|Fetch Raw Data| B(Data Loading)
+    B --> C{Preprocessing}
+    C -->|Merge Hot/Cold| D[Full History Data]
+    C -->|Map Spatial Info| E[District Aggregation]
+    C -->|Split Temporal Info| F[Weekday/Weekend Split]
+
+    D & E & F --> G(Statistical Analysis)
+    G -->|numpy.corrcoef| H[Correlation Coefficient]
+    G -->|numpy.polyfit| I[Regression Model]
+    I --> J[Residual Calculation]
+
+    G --> K(Classification)
+    K -->|Calculate WII| L[Weekend Intensity Index]
+    L -->|Apply Thresholds| M[District Type Labeling]
+
+    J & M --> N[Final Report View]
+```
 
 ### 2.4 웹 인터페이스 (Web Interface)
 
