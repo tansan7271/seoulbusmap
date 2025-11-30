@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{% static 'main/css/style.css' %}" />
   </head>
   <body>
+    <!-- Updated Template -->
     <div class="container">
       <img
         src="{% static 'main/images/seoulbusmaplogo.png' %}"
@@ -30,18 +31,17 @@
       <div class="update-status">
         <h2>데이터 업데이트 현황</h2>
         <p>
-          <strong>행정동 데이터 최종 업데이트:</strong> {{
-          last_hjd_update_time|date:"Y-m-d H:i"|default:"업데이트 기록 없음" }}
+          <strong>행정동 데이터 최종 업데이트:</strong>
+          {% if last_hjd_update_time %} {{ last_hjd_update_time }} {% else %}
+          업데이트 기록 없음 {% endif %}
         </p>
         <p>
-          <strong>정류장 데이터 최종 업데이트:</strong> {{
-          last_busstop_update_time|date:"Y-m-d H:i"|default:"업데이트 기록 없음"
-          }}
+          <strong>정류장 데이터 최종 업데이트:</strong>
+          {% if last_busstop_update_time %} {{ last_busstop_update_time }} {% else %} 업데이트 기록 없음 {% endif %}
         </p>
         <p>
-          <strong>승하차 데이터 최종 업데이트:</strong> {{
-          last_busdata_update_time|date:"Y-m-d H:i"|default:"업데이트 기록 없음"
-          }}
+          <strong>승하차 데이터 최종 업데이트:</strong>
+          {% if last_busdata_update_time %} {{ last_busdata_update_time }} {% else %} 업데이트 기록 없음 {% endif %}
         </p>
       </div>
 

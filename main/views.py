@@ -17,9 +17,9 @@ def index(request):
 
     context = {
         'hjd_list': hjd_list,
-        'last_hjd_update_time': last_hjd_update.timestamp if last_hjd_update else None,
-        'last_busstop_update_time': last_busstop_update.timestamp if last_busstop_update else None,
-        'last_busdata_update_time': last_busdata_update.timestamp if last_busdata_update else None,
+        'last_hjd_update_time': last_hjd_update.timestamp.strftime("%Y-%m-%d %H:%M") if last_hjd_update else None,
+        'last_busstop_update_time': last_busstop_update.timestamp.strftime("%Y-%m-%d %H:%M") if last_busstop_update else None,
+        'last_busdata_update_time': last_busdata_update.timestamp.strftime("%Y-%m-%d %H:%M") if last_busdata_update else None,
     }
     return render(request, 'main/index.html', context)
 
