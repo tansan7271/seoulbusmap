@@ -1,0 +1,304 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>SeoulBusMap 분석 보고서</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      body {
+        font-family: "Noto Sans KR", sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      h1,
+      h2,
+      h3 {
+        color: #2c3e50;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+      }
+      .section {
+        margin-bottom: 40px;
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .stat-box {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+      }
+      .stat-item {
+        text-align: center;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        width: 30%;
+      }
+      .stat-value {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #007bff;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+      }
+      th,
+      td {
+        padding: 12px;
+        border: 1px solid #ddd;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      .highlight-red {
+        color: #dc3545;
+        font-weight: bold;
+      }
+      .highlight-green {
+        color: #28a745;
+        font-weight: bold;
+      }
+      .chart-container {
+        position: relative;
+        height: 400px;
+        width: 100%;
+      }
+      .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        text-decoration: none;
+        color: #007bff;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="{% url 'index' %}" class="back-link">← 메인으로 돌아가기</a>
+
+    <h1>SeoulBusMap 분석 단계 보고서</h1>
+    <p>
+      본 보고서는 수집된 데이터를 바탕으로 서울시 대중교통의 공급 불균형과
+      지역적 특성을 분석한 결과입니다.
+    </p>
+
+    {% if error %}
+    <div class="section" style="color: red">
+      <h3>오류 발생</h3>
+      <p>{{ error }}</p>
+    </div>
+    {% else %}
+
+    <!-- 1. Macro Analysis -->
+    <div class="section">
+      <h2>1. 거시적 분석: 수요-공급 상관관계</h2>
+      <p>
+        행정동 인구수(수요)와 버스 정류장 수(공급)의 상관관계를 분석하여 서울시
+        전체의 대중교통 설계 적절성을 평가합니다.
+      </p>
+
+      <div class="stat-box">
+        <div class="stat-item">
+          <div>분석 대상</div>
+          <div class="stat-value">{{ total_districts }}개 행정동</div>
+        </div>
+        <div class="stat-item">
+          <div>상관계수 (Pearson r)</div>
+          <div class="stat-value">{{ macro.correlation }}</div>
+        </div>
+        <div class="stat-item">
+          <div>회귀식</div>
+          <div class="stat-value">
+            Y = {{ macro.slope }}X + {{ macro.intercept }}
+          </div>
+        </div>
+      </div>
+
+      <p>
+        <strong>해석:</strong>
+        상관계수가 0.7 이상이면 공급이 수요에 비례하여 적절히 이루어진 것으로
+        판단하며, 0.5 이하일 경우 불균형이 존재함을 시사합니다.
+      </p>
+    </div>
+
+    <!-- 2. Micro Analysis -->
+    <div class="section">
+      <h2>2. 미시적 분석: 교통 소외 지역 도출 (잔차 분석)</h2>
+      <p>
+        회귀 분석의 예측치보다 실제 정류장 수가 현저히 적은(잔차가 음수인)
+        지역을 '교통 소외 지역'으로 정의합니다.
+      </p>
+
+      <h3>🚨 교통 소외 우려 지역 (Top 5)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>행정동</th>
+            <th>인구수</th>
+            <th>실제 정류장 수</th>
+            <th>예측 정류장 수</th>
+            <th>잔차 (부족분)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in marginalized_top5 %}
+          <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.population }}명</td>
+            <td>{{ item.busstop_count }}개</td>
+            <td>{{ item.predicted_stops }}개</td>
+            <td class="highlight-red">{{ item.residual }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <h3 style="margin-top: 30px">✅ 공급 과잉/거점 지역 (Top 5)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>행정동</th>
+            <th>인구수</th>
+            <th>실제 정류장 수</th>
+            <th>예측 정류장 수</th>
+            <th>잔차 (초과분)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in oversupplied_top5 %}
+          <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.population }}명</td>
+            <td>{{ item.busstop_count }}개</td>
+            <td>{{ item.predicted_stops }}개</td>
+            <td class="highlight-green">+{{ item.residual }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      </table>
+    </div>
+
+    <!-- 2.5 Excluded Districts -->
+    <div class="section">
+        <h2>⚠️ 분석 제외 지역 (데이터 부족/행정구역 변경 의심)</h2>
+        <p>인구 데이터가 없거나 정류장이 0개인 지역은 통계적 왜곡을 방지하기 위해 분석에서 제외하였습니다.</p>
+        <p><strong>총 {{ excluded_count }}개 지역 제외됨</strong></p>
+        
+        {% if excluded_districts %}
+        <div style="max-height: 300px; overflow-y: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>행정동</th>
+                        <th>인구수</th>
+                        <th>정류장 수</th>
+                        <th>비고</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in excluded_districts %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.population }}명</td>
+                        <td>{{ item.busstop_count }}개</td>
+                        <td style="color: #6c757d;">데이터 불충분</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>제외된 지역이 없습니다.</p>
+        {% endif %}
+    </div>
+
+    <!-- 3. Context Analysis -->
+    <div class="section">
+      <h2>3. 맥락 분석: 주말 집중도 지수 (Weekend Intensity Index)</h2>
+      <p>주말 대비 주중 승객 비율을 통해 도시의 성격을 분류합니다.</p>
+
+      <div class="stat-box">
+        <div class="stat-item">
+          <div>업무 지구 (Index &lt; 0.65)</div>
+          <div class="stat-value">
+            {{ classification_counts.Business|default:0 }}곳
+          </div>
+        </div>
+        <div class="stat-item">
+          <div>주거 지구 (0.65 &le; Index &le; 0.85)</div>
+          <div class="stat-value">
+            {{ classification_counts.Residential|default:0 }}곳
+          </div>
+        </div>
+        <div class="stat-item">
+          <div>문화/상업 (Index &gt; 0.85)</div>
+          <div class="stat-value">
+            {{ classification_counts.Cultural_Commercial|default:0 }}곳
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 20px">
+        <div style="flex: 1">
+          <h3>🏢 대표 업무 지구 (Top 5)</h3>
+          <p>주중 유동인구가 주말보다 월등히 많은 지역</p>
+          <table>
+            <thead>
+              <tr>
+                <th>행정동</th>
+                <th>주중 평균</th>
+                <th>주말 평균</th>
+                <th>Index</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in business_districts %}
+              <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.avg_weekday }}</td>
+                <td>{{ item.avg_weekend }}</td>
+                <td>{{ item.weekend_intensity_index }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div style="flex: 1">
+          <h3>🎉 대표 문화/상업 지구 (Top 5)</h3>
+          <p>주말 유동인구가 주중보다 많은 지역</p>
+          <table>
+            <thead>
+              <tr>
+                <th>행정동</th>
+                <th>주중 평균</th>
+                <th>주말 평균</th>
+                <th>Index</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in cultural_districts %}
+              <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.avg_weekday }}</td>
+                <td>{{ item.avg_weekend }}</td>
+                <td>{{ item.weekend_intensity_index }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    {% endif %}
+  </body>
+</html>
