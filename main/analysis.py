@@ -108,7 +108,6 @@ def perform_statistical_analysis(df):
     
     # --- 데이터 전처리: 이상치 및 결측 데이터 분류 ---
     # 정류장이 아예 없거나(0개), 인구 데이터가 없는 경우 분석에서 제외하고 별도 리스트로 관리합니다.
-    # 이는 행정구역 변경 등으로 인한 데이터 불일치일 가능성이 높습니다.
     
     # 분석 유효 데이터: 인구수 > 0 AND 정류장 수 > 0
     valid_df = df[(df['population'] > 0) & (df['busstop_count'] > 0)].copy()
@@ -132,11 +131,10 @@ def perform_statistical_analysis(df):
     x = valid_df['population'].values
     y = valid_df['busstop_count'].values
     
-    # 선형 회귀 (numpy polyfit 사용)
-    # 기울기(slope), 절편(intercept)
+    # 선형 회귀
     slope, intercept = np.polyfit(x, y, 1)
     
-    # 상관계수 (Pearson Correlation Coefficient)
+    # 상관계수
     correlation = np.corrcoef(x, y)[0, 1]
     
     results['macro'] = {
