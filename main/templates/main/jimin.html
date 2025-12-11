@@ -1,0 +1,266 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>데이터 시각화 분석 (000's Page)</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .visualization-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .chart-container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .map-container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            text-align: center;
+        }
+        .map-container svg {
+            width: 100%;
+            height: auto;
+            stroke: #333;
+            stroke-width: 0.5;
+        }
+        .map-legend {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{% url 'index' %}">
+            <img src="{% static 'main/images/seoulbusmaplogo.png' %}" alt="서울시 행정동별 버스 인프라 탐색기 로고" class="logo-image" />
+        </a>
+        <p class="description">
+            데이터 분석 시각화 페이지입니다. 거시적 분석과 미시적 분석 결과를 확인하세요.
+        </p>
+
+        <div class="selector-form">
+            <form id="hjd-form">
+                <label for="hjd_code">다른 행정동 바로가기:</label>
+                <select name="hjd_code" id="hjd_code" onchange="navigateToHjd()">
+                    <option value="">--- 행정동을 선택하세요 ---</option>
+                    {% for hjd in hjd_list %}
+                    <option value="{{ hjd.district_id }}">{{ hjd.name }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+
+        <div class="visualization-container">
+            <!-- 1. 거시적 분석 -->
+            <div class="chart-container">
+                <h2>거시적 분석: 인구수-정류장 수 상관관계</h2>
+                <canvas id="scatterChart"></canvas>
+            </div>
+
+            <!-- 2. 미시적 분석 -->
+            <div class="map-container">
+                <h2>미시적 분석: 교통 소외 지역 지도</h2>
+                <div id="map-visualization">
+                    {{ svg_content|safe }}
+                </div>
+                <div class="map-legend">
+                    <span>소외(부족)</span>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #d73027;"></div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #fc8d59;"></div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #fee08b;"></div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #ffffbf;"></div>
+                    </div>
+                     <div class="legend-item">
+                        <div class="legend-color" style="background-color: #d9ef8b;"></div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #91cf60;"></div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #1a9850;"></div>
+                    </div>
+                    <span>과잉(충분)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function navigateToHjd() {
+            const select = document.getElementById("hjd_code");
+            const selectedCode = select.value;
+            if (selectedCode) {
+                window.location.href = `/hangjeongdong/${selectedCode}/`;
+            }
+        }
+
+        // --- 거시적 분석: 산점도 차트 ---
+        document.addEventListener('DOMContentLoaded', function () {
+            const scatterData = JSON.parse('{{ scatter_data|safe }}');
+            const macroResults = JSON.parse('{{ macro_results|safe }}');
+
+            const points = scatterData.map(d => ({ x: d.population, y: d.busstop_count, name: d.name }));
+
+            // 회귀선 데이터 생성
+            const minPop = Math.min(...points.map(p => p.x));
+            const maxPop = Math.max(...points.map(p => p.x));
+            const regressionLine = [
+                { x: minPop, y: macroResults.slope * minPop + macroResults.intercept },
+                { x: maxPop, y: macroResults.slope * maxPop + macroResults.intercept }
+            ];
+
+            const ctx = document.getElementById('scatterChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: '행정동',
+                        data: points,
+                        backgroundColor: 'rgba(0, 123, 255, 0.5)'
+                    }, {
+                        label: '회귀선',
+                        data: regressionLine,
+                        type: 'line',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 2,
+                        fill: false,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            title: {
+                                display: true,
+                                text: '인구수'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '버스 정류장 수'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const point = context.dataset.data[context.dataIndex];
+                                    return `${point.name}: (인구: ${point.x}, 정류장: ${point.y})`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // --- 미시적 분석: 지도 색칠하기 ---
+            const residualMap = JSON.parse('{{ residual_map|safe }}');
+            console.log(residualMap); // Log the residual map to see the available data
+            const residuals = Object.values(residualMap);
+            const minResidual = Math.min(...residuals);
+            const maxResidual = Math.max(...residuals);
+
+            // 색상 스케일 함수
+            function getColor(value) {
+                // -35 (가장 소외) ~ + (과잉)
+                if (value < -25) return '#d73027'; // 매우 부족 (빨강)
+                if (value < -15) return '#fc8d59';
+                if (value < -5) return '#fee08b';
+                if (value < 5) return '#ffffbf';  // 평균 수준 (노랑)
+                if (value < 15) return '#d9ef8b';
+                if (value < 25) return '#91cf60';
+                return '#1a9850'; // 매우 충분 (녹색)
+            }
+
+            const svg = document.getElementById('map-visualization').querySelector('svg');
+            if (svg) {
+                svg.querySelectorAll('path').forEach(path => {
+                    const districtId = path.dataset.districtId; // data-district-id 속성 사용
+                    const pathId = path.id;
+
+                    console.log('Path ID:', pathId, 'District ID:', districtId); // ID 로깅
+
+                    if (residualMap.hasOwnProperty(districtId)) {
+                        const residual = residualMap[districtId];
+                        path.style.fill = getColor(residual);
+                    } else {
+                        path.style.fill = '#e0e0e0'; // 데이터 없는 지역
+                    }
+
+                    // 호버 효과 추가
+                    path.addEventListener('mouseover', function() {
+                        const districtName = path.dataset.name || (pathId.includes('_') ? pathId.split('_')[2] : pathId);
+                        const residual = residualMap[districtId];
+                        const tooltipText = residual !== undefined 
+                            ? `${districtName}<br>잔차: ${residual.toFixed(2)}`
+                            : `${districtName}<br>(데이터 없음)`;
+                        
+                        // 간단한 툴팁 표시
+                        const tooltip = document.createElement('div');
+                        tooltip.id = 'map-tooltip';
+                        tooltip.style.position = 'absolute';
+                        tooltip.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                        tooltip.style.color = 'white';
+                        tooltip.style.padding = '5px';
+                        tooltip.style.borderRadius = '3px';
+                        tooltip.style.pointerEvents = 'none';
+                        tooltip.innerHTML = tooltipText;
+                        document.body.appendChild(tooltip);
+
+                        document.onmousemove = function(e) {
+                            tooltip.style.left = e.pageX + 10 + 'px';
+                            tooltip.style.top = e.pageY + 10 + 'px';
+                        };
+                    });
+
+                    path.addEventListener('mouseout', function() {
+                        const tooltip = document.getElementById('map-tooltip');
+                        if (tooltip) {
+                            tooltip.remove();
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
