@@ -213,3 +213,82 @@ def analysis_report(request):
     }
     
     return render(request, 'main/analysis_report.html', context)
+
+
+from django.conf import settings
+import os
+import xml.etree.ElementTree as ET
+
+def jimin_visualization(request):
+    """
+    Jimin의 시각화 페이지.
+    1. 거시적 분석 (상관관계 산점도)
+    2. 미시적 분석 (지도 시각화)
+    """
+    # 1. 데이터 분석 수행
+    df = get_analysis_data()
+    if df.empty:
+        return render(request, 'main/jimin.html', {'error': '분석할 데이터가 없습니다.'})
+
+    results, valid_df = perform_statistical_analysis(df)
+
+    if valid_df.empty:
+        print("valid_df is empty after statistical analysis.")
+        return render(request, 'main/jimin.html', {'error': '분석할 데이터가 없습니다.'})
+
+    # 2. SVG 파일 읽고 데이터 주입
+    svg_path = os.path.join(settings.BASE_DIR, 'main', 'static', 'main', 'svg', '11_서울특별시.svg')
+    svg_content = f"<p>SVG 파일을 찾을 수 없습니다. '{svg_path}' 경로를 확인해주세요.</p>"
+    try:
+        # SVG 파일에 네임스페이스가 있을 수 있으므로, 처리 준비
+        ET.register_namespace('', "http://www.w3.org/2000/svg")
+        tree = ET.parse(svg_path)
+        root = tree.getroot()
+        
+        # 데이터프레임을 district_id 기준으로 정렬
+        sorted_df = valid_df.sort_values('district_id').reset_index(drop=True)
+        district_ids = sorted_df['district_id'].tolist()
+
+        # SVG 내의 모든 path 태그 찾기
+        # 네임스페이스를 고려하여 findall 사용
+        paths = root.findall('.//{http://www.w3.org/2000/svg}path')
+        
+        print(f"Number of paths found in SVG: {len(paths)}")
+        print(f"Number of districts in data: {len(district_ids)}")
+
+        # path 태그와 데이터를 순서대로 매핑하여 data-district-id 추가
+        # path가 더 많거나, 데이터가 더 많거나, 숫자가 다를 경우를 대비
+        for i, path in enumerate(paths):
+            if i < len(district_ids):
+                district_id = district_ids[i]
+                path.set('data-district-id', str(district_id))
+            else:
+                # 데이터보다 많은 path가 있는 경우, ID를 부여하지 않음
+                pass
+        
+        # 수정된 XML을 문자열로 변환
+        svg_content = ET.tostring(root, encoding='unicode')
+
+    except FileNotFoundError:
+        # svg_content는 이미 에러 메시지로 초기화되어 있음
+        pass
+    except ET.ParseError:
+        svg_content = "<p>SVG 파일 파싱에 실패했습니다. 파일이 유효한 XML 형식이 아닙니다.</p>"
+
+
+    # 3. 템플릿으로 전달할 데이터 준비
+    # 거시분석용 데이터 (산점도)
+    scatter_data = valid_df[['name', 'population', 'busstop_count']].to_dict('records')
+    
+    # 미시분석용 데이터 (지도 색칠)
+    residual_map = valid_df.set_index('district_id')['residual'].to_dict()
+
+    context = {
+        'svg_content': svg_content,
+        'scatter_data': json.dumps(scatter_data),
+        'macro_results': json.dumps(results.get('macro', {})),
+        'residual_map': json.dumps(residual_map),
+        'hjd_list': HangJeongDong.objects.all().order_by('name') # 네비게이션용
+    }
+    
+    return render(request, 'main/jimin.html', context)
