@@ -231,3 +231,9 @@ def analysis_report(request):
     }
     
     return render(request, 'main/analysis_report.html', context)
+
+def 000(request):
+    """
+    김000 팀원을 위한 2.5D 시각화 전용 페이지
+    """
+    return render(request, 'main/000.html')

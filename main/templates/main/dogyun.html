@@ -1,0 +1,451 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SeoulBusMap Equalizer - 000's Canvas</title>
+    <!-- MapLibre GL JS -->
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <link
+      href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #111;
+        color: #fff;
+        font-family: "Inter", sans-serif;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+
+      .overlay {
+        position: absolute;
+        bottom: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        max-width: 600px;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid #333;
+        backdrop-filter: blur(10px);
+        text-align: center;
+        z-index: 10;
+      }
+
+      h1 {
+        margin: 0 0 10px 0;
+        font-size: 1.2rem;
+        background: linear-gradient(45deg, #00f260, #0575e6);
+        -webkit-background-clip: text;
+        color: transparent;
+      }
+
+      #date-display {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 10px 0;
+        font-variant-numeric: tabular-nums;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        margin: 10px 0;
+        background: transparent;
+        -webkit-appearance: none;
+      }
+
+      input[type="range"]::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 8px;
+        cursor: pointer;
+        background: #333;
+        border-radius: 4px;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        height: 24px;
+        width: 24px;
+        border-radius: 50%;
+        background: #00f260;
+        cursor: pointer;
+        -webkit-appearance: none;
+        margin-top: -8px;
+        box-shadow: 0 0 10px rgba(0, 242, 96, 0.5);
+      }
+
+      .play-btn {
+        background: #333;
+        border: 1px solid #555;
+        color: white;
+        padding: 8px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s;
+      }
+      .play-btn:hover {
+        background: #00f260;
+        color: #000;
+        border-color: #00f260;
+      }
+
+      .speed-controls {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 20;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 10px;
+        border-radius: 10px;
+        backdrop-filter: blur(5px);
+        border: 1px solid #333;
+      }
+
+      .speed-btn {
+        background: #333;
+        border: 1px solid #555;
+        color: #aaa;
+        padding: 5px 10px;
+        margin: 0 2px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        transition: all 0.2s;
+      }
+
+      .speed-btn:hover {
+        background: #444;
+        color: #fff;
+      }
+
+      .speed-btn.active {
+        background: #00f260;
+        color: #000;
+        border-color: #00f260;
+        font-weight: bold;
+      }
+
+      .maplibregl-popup-content {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(5px);
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        color: #333;
+      }
+      .maplibregl-popup-tip {
+        border-top-color: rgba(255, 255, 255, 0.95);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <div class="speed-controls">
+      <button class="speed-btn" data-speed="0.0375">x0.5</button>
+      <button class="speed-btn" data-speed="0.05625">x0.75</button>
+      <button class="speed-btn active" data-speed="0.075">x1.0</button>
+      <button class="speed-btn" data-speed="0.1125">x1.5</button>
+    </div>
+
+    <div class="overlay">
+      <h1>Seoul Bus Usage Equalizer</h1>
+      <div id="date-display">Loading...</div>
+      <input
+        type="range"
+        id="time-slider"
+        min="0"
+        max="100"
+        value="0"
+        step="1"
+      />
+      <div style="margin-top: 10px">
+        <button id="play-pause" class="play-btn">▶ Play</button>
+      </div>
+    </div>
+
+    <script>
+      // 1. Initialize Map
+      const map = new maplibregl.Map({
+        container: "map",
+        style: "https://demotiles.maplibre.org/style.json", // Free Demo Style
+        center: [126.978, 37.5665], // Seoul City Hall
+        zoom: 10.5,
+        pitch: 60, // 3D Tilt
+        bearing: -17.6,
+        antialias: true,
+      });
+
+      let timeSeriesData = {};
+      let dates = [];
+      let districtStats = {}; // { district_id: { name, index } }
+      let isPlaying = false;
+      let animationFrame;
+      let animationStep = 0.075; // 기본 속도 (1.0x)
+      let distIdToFeatureIdMap = {}; // DB ID (8자리) -> Feature ID (adm_cd) 매핑
+
+      map.on("load", async () => {
+        // 2. Load Data
+        const geoResponse = await fetch(
+          "{% static 'main/data/seoul_geo.json' %}"
+        );
+        const geoData = await geoResponse.json();
+
+        const analysisResponse = await fetch(
+          "{% static 'main/data/analysis_result.json' %}"
+        );
+        const analysisData = await analysisResponse.json();
+
+        timeSeriesData = analysisData.district_time_series || {};
+        dates = Object.keys(timeSeriesData).sort();
+
+        // 2-0. 통계 데이터 매핑 (Hover Popup 용)
+        if (analysisData.all_districts) {
+          analysisData.all_districts.forEach((d) => {
+            if (d.district_id) {
+              districtStats[d.district_id] = {
+                name: d.name,
+                index: d.weekend_intensity_index,
+              };
+            }
+          });
+        }
+
+        if (dates.length === 0) {
+          document.getElementById("date-display").innerText = "No Data Baked";
+          return;
+        }
+
+        // 2-1. 매핑 테이블 생성 (DB ID -> Feature ID)
+        geoData.features.forEach((f) => {
+          // GeoJSON: adm_cd2 (10자리) -> db_id (8자리) 추출
+          let dbId = f.properties.adm_cd2;
+          if (dbId && dbId.length === 10) {
+            dbId = dbId.substring(0, 8);
+          }
+          // Feature ID: adm_cd (7자리, promoteId로 설정할 필드)
+          const featureId = f.properties.adm_cd;
+
+          if (dbId && featureId) {
+            distIdToFeatureIdMap[dbId] = featureId;
+          }
+        });
+
+        // Initialize Slider
+        const slider = document.getElementById("time-slider");
+        slider.max = dates.length - 1;
+        slider.value = 0;
+        slider.step = 0.05; // 부드러운 이동을 위해 step을 소수점으로 설정
+
+        // 3. Add Source & Layer
+        map.addSource("districts", {
+          type: "geojson",
+          data: geoData,
+          promoteId: "adm_cd", // adm_cd를 고유 ID로 사용 (setFeatureState 필수)
+        });
+
+        // Base Layer (Dark)
+        map.addLayer({
+          id: "districts-base",
+          type: "fill",
+          source: "districts",
+          paint: {
+            "fill-color": "#222",
+            "fill-opacity": 0.8,
+          },
+        });
+
+        // Extrusion Layer (Dynamic Height with Transition)
+        map.addLayer({
+          id: "districts-extrusion",
+          type: "fill-extrusion",
+          source: "districts",
+          paint: {
+            // ['feature-state', 'usage']를 사용하여 상태 기반 스타일링
+            "fill-extrusion-color": [
+              "interpolate",
+              ["linear"],
+              ["feature-state", "usage"], // 값이 없으면 0 처리됨
+              0,
+              "#222",
+              1000,
+              "#0575e6",
+              5000,
+              "#00f260",
+              15000,
+              "#f2d50f",
+              30000,
+              "#f20f0f",
+            ],
+            "fill-extrusion-height": [
+              "interpolate",
+              ["linear"],
+              ["feature-state", "usage"],
+              0,
+              0,
+              30000,
+              6000,
+            ],
+            "fill-extrusion-base": 0,
+            "fill-extrusion-opacity": 0.9,
+
+            // 핵심: 부드러운 전환을 위한 Transition 설정
+            // Update Interval(200ms)보다 길게(500ms) 설정하여,
+            // 목표치에 도달하기 전에 다음 값이 오더라도 부드럽게 이어지도록(Interpolation) 함.
+            "fill-extrusion-height-transition": {
+              duration: 500,
+              delay: 0,
+            },
+            "fill-extrusion-color-transition": {
+              duration: 500,
+              delay: 0,
+            },
+          },
+        });
+
+        // 3-1. Interaction (Popup)
+        const popup = new maplibregl.Popup({
+          closeButton: false,
+          closeOnClick: false,
+          offset: 20,
+        });
+
+        map.on("mousemove", "districts-extrusion", (e) => {
+          if (e.features.length > 0) {
+            map.getCanvas().style.cursor = "pointer";
+
+            const feature = e.features[0];
+            const rawId = feature.properties.adm_cd2; // 10자리 코드
+
+            if (rawId) {
+              const dbId = rawId.substring(0, 8);
+              const stats = districtStats[dbId];
+
+              if (stats) {
+                const indexVal = stats.index
+                  ? parseFloat(stats.index).toFixed(2)
+                  : "N/A";
+                const html = `
+                            <div style="text-align: center;">
+                                <h4 style="margin: 0 0 5px 0; font-size: 1.1em;">${stats.name}</h4>
+                                <div style="font-size: 0.9em;">
+                                    주말 집중도: <span style="font-weight:bold; color: #0575e6;">${indexVal}</span>
+                                </div>
+                            </div>
+                        `;
+                popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
+              }
+            }
+          }
+        });
+
+        map.on("mouseleave", "districts-extrusion", () => {
+          map.getCanvas().style.cursor = "";
+          popup.remove();
+        });
+
+        // Helper: Linear Interpolation
+        function lerp(start, end, t) {
+          return start * (1 - t) + end * t;
+        }
+
+        // 4. Update Function (Continuous Interpolation)
+        function updateMap(floatIndex) {
+          // 정수 인덱스 2개 확보 (앞, 뒤 날짜)
+          const lowerIndex = Math.floor(floatIndex);
+          const upperIndex = Math.min(lowerIndex + 1, dates.length - 1);
+
+          const t = floatIndex - lowerIndex; // 보간 비율 (0.0 ~ 0.99)
+
+          // UI 표시: 현재 날짜 (가까운 쪽 반올림 표시 or 소수점 버림)
+          const displayDate = dates[Math.round(floatIndex)];
+          document.getElementById("date-display").innerText = displayDate;
+
+          const lowerData = timeSeriesData[dates[lowerIndex]] || {};
+          const upperData = timeSeriesData[dates[upperIndex]] || {};
+
+          for (const [dbId, featureId] of Object.entries(
+            distIdToFeatureIdMap
+          )) {
+            const val1 = lowerData[dbId] || 0;
+            const val2 = upperData[dbId] || 0;
+
+            // 보간된 값 계산
+            const interpolatedUsage = lerp(val1, val2, t);
+
+            map.setFeatureState(
+              { source: "districts", id: featureId },
+              { usage: interpolatedUsage }
+            );
+          }
+        }
+
+        // Initial Update
+        updateMap(0);
+
+        // Slider Event
+        slider.addEventListener("input", (e) => {
+          updateMap(parseFloat(e.target.value));
+        });
+
+        // Speed Control Events
+        document.querySelectorAll(".speed-btn").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            // UI Update
+            document
+              .querySelectorAll(".speed-btn")
+              .forEach((b) => b.classList.remove("active"));
+            e.target.classList.add("active");
+
+            // Value Update
+            animationStep = parseFloat(e.target.getAttribute("data-speed"));
+          });
+        });
+
+        // Play Animation
+        const playBtn = document.getElementById("play-pause");
+        playBtn.addEventListener("click", () => {
+          isPlaying = !isPlaying;
+          playBtn.innerText = isPlaying ? "⏸ Pause" : "▶ Play";
+
+          if (isPlaying) {
+            animate();
+          } else {
+            cancelAnimationFrame(animationFrame);
+          }
+        });
+
+        function animate() {
+          if (!isPlaying) return;
+
+          let currentVal = parseFloat(slider.value);
+          // animationStep 변수 사용 (기본값 0.075)
+          const step = animationStep;
+
+          if (currentVal >= dates.length - 1) {
+            currentVal = 0; // Loop (부드럽게 처음으로)
+          }
+
+          let nextVal = currentVal + step;
+          if (nextVal > dates.length - 1) nextVal = dates.length - 1;
+
+          slider.value = nextVal;
+          updateMap(nextVal);
+
+          // Continuous Loop (No setTimeout delay needed for smooth flow)
+          animationFrame = requestAnimationFrame(animate);
+        }
+      });
+    </script>
+  </body>
+</html>
