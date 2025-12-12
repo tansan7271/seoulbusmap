@@ -22,6 +22,10 @@ def run_bus_data_scheduler():
     print(f"[{timezone.now()}] [버스 승하차] 스케줄러 작업을 시작합니다...")
     try:
         call_command('fetch_bus_data')
+        # 분석 데이터 Baking (최적화)
+        print(f"[{timezone.now()}] [분석 데이터] Baking 작업을 시작합니다...")
+        call_command('bake_analysis_data')
+        print(f"[{timezone.now()}] [분석 데이터] Baking 작업 완료.")
     except Exception as e:
         print(f"[버스 승하차] 스케줄러 작업 중 오류 발생: {e}")
     finally:
