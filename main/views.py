@@ -5,6 +5,8 @@ from datetime import timedelta
 from django.db.models import Avg, Sum, Count, F
 from django.db.models.functions import TruncDay
 import json
+import os
+from django.conf import settings
 from collections import defaultdict
 
 def index(request):
@@ -155,7 +157,23 @@ from .analysis import get_analysis_data, perform_statistical_analysis
 def analysis_report(request):
     """
     분석 보고서를 생성하고 표시합니다.
+    최적화를 위해 미리 계산된(baked) JSON 데이터를 우선적으로 사용합니다.
     """
+    baked_file_path = os.path.join(settings.BASE_DIR, 'main', 'static', 'main', 'data', 'analysis_result.json')
+    
+    # 1. Baked Data 확인
+    if os.path.exists(baked_file_path):
+        try:
+            with open(baked_file_path, 'r', encoding='utf-8') as f:
+                context = json.load(f)
+                # context['generated_at']은 JSON에 이미 포함되어 있음
+                return render(request, 'main/analysis_report.html', context)
+        except Exception as e:
+            print(f"Error loading baked data: {e}")
+            # 로드 실패 시 Fallback 로직으로 진행
+            pass
+
+    # 2. Fallback: 실시간 계산 (기존 로직)
     # 1. 집계 데이터 가져오기
     df = get_analysis_data()
     
@@ -213,6 +231,12 @@ def analysis_report(request):
     }
     
     return render(request, 'main/analysis_report.html', context)
+
+def 000(request):
+    """
+    김000 팀원을 위한 2.5D 시각화 전용 페이지
+    """
+    return render(request, 'main/000.html')
 
 
 from django.conf import settings

@@ -8,31 +8,48 @@ import time
 
 # --- Bus Data Fetching Functions ---
 
-def fetch_bus_data_from_api(api_key, stdout_logger, style_logger):
+def fetch_bus_data_from_api(api_key, stdout_logger, style_logger, target_date=None):
     """
-    API에서 수집 가능한 최신 일자의 모든 승하차 인원 정보를 가져옵니다.
+    API에서 승하차 인원 정보를 가져옵니다. 
+    target_date가 주어지면 해당 날짜를, 없으면 최신 데이터를 자동으로 탐색합니다.
     """
     service_name = 'CardBusStatisticsServiceNew'
     batch_size = 1000
     
-    # 1. 최신 데이터 날짜 탐색
-    target_date = None
     date_check_response = None
-    for i in range(1, 8):
-        date_to_check = (datetime.now() - timedelta(days=i)).strftime('%Y%m%d')
-        stdout_logger.write(f'[fetch_bus_data] {date_to_check} 날짜의 데이터 존재 여부를 확인합니다...')
-        check_url = f'http://openapi.seoul.go.kr:8088/{api_key}/json/{service_name}/1/1/{date_to_check}'
+
+    if target_date:
+        # 1-A. 지정된 날짜 확인
+        stdout_logger.write(f'[fetch_bus_data] 지정된 날짜 {target_date}의 데이터를 확인합니다...')
+        check_url = f'http://openapi.seoul.go.kr:8088/{api_key}/json/{service_name}/1/1/{target_date}'
         check_response = requests.get(check_url, timeout=10)
         check_response.raise_for_status()
         check_data = check_response.json()
+        
         if service_name in check_data and 'row' in check_data.get(service_name, {}):
-            target_date = date_to_check
             date_check_response = check_response
-            stdout_logger.write(style_logger.SUCCESS(f'[fetch_bus_data] 데이터 수집 대상 날짜를 {target_date}로 확정했습니다.'))
-            break
-        time.sleep(0.5)
+            stdout_logger.write(style_logger.SUCCESS(f'[fetch_bus_data] {target_date} 데이터를 확인했습니다.'))
+        else:
+            stdout_logger.write(style_logger.WARNING(f'[fetch_bus_data] {target_date}에 해당하는 데이터가 없습니다.'))
+            return None, None
+            
+    else:
+        # 1-B. 최신 데이터 날짜 탐색
+        for i in range(1, 8):
+            date_to_check = (datetime.now() - timedelta(days=i)).strftime('%Y%m%d')
+            stdout_logger.write(f'[fetch_bus_data] {date_to_check} 날짜의 데이터 존재 여부를 확인합니다...')
+            check_url = f'http://openapi.seoul.go.kr:8088/{api_key}/json/{service_name}/1/1/{date_to_check}'
+            check_response = requests.get(check_url, timeout=10)
+            check_response.raise_for_status()
+            check_data = check_response.json()
+            if service_name in check_data and 'row' in check_data.get(service_name, {}):
+                target_date = date_to_check
+                date_check_response = check_response
+                stdout_logger.write(style_logger.SUCCESS(f'[fetch_bus_data] 데이터 수집 대상 날짜를 {target_date}로 확정했습니다.'))
+                break
+            time.sleep(0.5)
 
-    if not target_date:
+    if not target_date or not date_check_response:
         return None, None
 
     # 2. 전체 데이터 수집
