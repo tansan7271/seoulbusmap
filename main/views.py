@@ -240,10 +240,17 @@ def jimin_visualization(request):
     # 미시분석용 데이터 (지도 색칠)
     residual_map = valid_df.set_index('district_id')['residual'].to_dict()
 
+    # 자치구별 평균 잔차 계산 (Level 0 시각화용)
+    # district_id의 앞 5자리가 자치구 코드 (예: 11110 종로구)
+    valid_df['gu_code'] = valid_df['district_id'].astype(str).str[:5]
+    district_group = valid_df.groupby('gu_code')['residual'].mean()
+    district_residual_map = district_group.to_dict()
+
     context = {
         'scatter_data': json.dumps(scatter_data),
         'macro_results': json.dumps(results.get('macro', {})),
         'residual_map': json.dumps(residual_map),
+        'district_residual_map': json.dumps(district_residual_map),
         'hjd_list': HangJeongDong.objects.all().order_by('name') # 네비게이션용
     }
     
