@@ -67,12 +67,24 @@ class MainConfig(AppConfig):
 
     def ready(self):
         global scheduler_started
+        
+        # 커스텀 인자 처리 (--with-scheduler)
+        # runserver 명령어가 인자를 파싱하기 전에 여기서 가로채고 삭제해야 에러가 나지 않음
+        enable_scheduler = False
+        if '--with-scheduler' in sys.argv:
+            enable_scheduler = True
+            sys.argv.remove('--with-scheduler')
+            
         # Django reloader가 아닌 메인 프로세스에서만 스케줄러를 시작
         if not scheduler_started and os.environ.get('RUN_MAIN', None) != 'true' and len(sys.argv) > 1 and sys.argv[1] == 'runserver':
-            print("모든 스케줄러를 시작합니다...")
-            scheduler_started = True
-            
-            # DB 초기화 및 다른 앱의 준비를 기다리기 위해 짧은 지연 후 순차적으로 시작
-            threading.Timer(1, run_bus_data_scheduler).start()
-            threading.Timer(2, run_busstop_scheduler).start()
-            threading.Timer(3, run_hangjeongdong_scheduler).start()
+            if enable_scheduler:
+                print("모든 스케줄러를 시작합니다...")
+                scheduler_started = True
+                
+                # DB 초기화 및 다른 앱의 준비를 기다리기 위해 짧은 지연 후 순차적으로 시작
+                threading.Timer(1, run_bus_data_scheduler).start()
+                threading.Timer(2, run_busstop_scheduler).start()
+                threading.Timer(3, run_hangjeongdong_scheduler).start()
+            else:
+                print(">> [INFO] 스케줄러 없이 서버가 시작됩니다.")
+                print(">> [INFO] 스케줄러를 실행하려면 'python manage.py runserver --with-scheduler' 옵션을 사용하세요.")
