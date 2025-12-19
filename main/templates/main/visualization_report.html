@@ -1,0 +1,209 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SeoulBusMap 통합 시각화 리포트</title>
+    
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        body { background-color: #fdfdfd; padding-bottom: 80px; }
+        
+        .viz-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .viz-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 60px;
+            padding: 30px;
+            overflow: hidden;
+        }
+
+        h2.viz-title {
+            border-left: 5px solid #28a745;
+            padding-left: 15px;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 1.5rem;
+        }
+
+        h3.sub-title {
+            margin-top: 40px;
+            margin-bottom: 15px;
+            color: #555;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            font-size: 1.2rem;
+        }
+        
+        p.viz-desc { color: #666; margin-bottom: 20px; font-size: 0.95rem; }
+        
+        /* 000 차트/지도 스타일 */
+        .chart-wrapper { position: relative; height: 500px; width: 100%; }
+        #000Map { height: 500px; width: 100%; border-radius: 8px; z-index: 1; }
+
+        /* [핵심] 000 파트 Iframe 스타일 */
+        .iframe-container {
+            width: 100%;
+            height: 850px; /* 000 페이지 전체가 보일 만큼 높이 지정 */
+            border: none;
+            overflow: hidden;
+            border-radius: 8px;
+            background-color: #fdfdfd;
+        }
+    </style>
+</head>
+<body>
+    <header class="sticky-header">
+        <h1>
+            <a href="{% url 'index' %}">
+                <img src="{% static 'main/images/seoulbusmaplogo_garo.png' %}" alt="Home" class="breadcrumb-logo">
+            </a> &gt; 통합 시각화 리포트
+        </h1>
+    </header>
+
+    <div class="viz-container">
+        
+        <section class="viz-section">
+            <h2 class="viz-title">📊 1. 서울시 대중교통 수요-공급 분석</h2>
+            <p class="viz-desc">
+                인구(수요)와 정류장(공급) 데이터를 분석하여 교통 소외 지역을 시각화합니다.
+            </p>
+
+            <h3 class="sub-title">A. 인구 대비 정류장 회귀 분석</h3>
+            <div class="chart-wrapper">
+                <canvas id="scatterChart"></canvas>
+            </div>
+
+            <h3 class="sub-title">B. 행정동별 정류장 분포 (Dot Map)</h3>
+            <p class="viz-desc">지도 위의 점들은 실제 버스 정류장의 위치입니다.</p>
+            <div id="000Map"></div>
+        </section>
+
+        <section class="viz-section">
+            <h2 class="viz-title">🌏 2. 주말 집중도 타임랩스 (3D)</h2>
+            <p class="viz-desc">
+                아래 화면은 <strong>원본 3D 시각화 페이지</strong>를 실시간으로 불러온 것입니다.
+                <br>잘 작동하던 기능 그대로 사용하실 수 있습니다.
+            </p>
+            
+            <iframe src="{% url '000' %}" class="iframe-container" title="3D Timelapse Map"></iframe>
+
+        </section>
+
+    </div>
+
+    <script>
+        const ANALYSIS_JSON_URL = "{% static 'main/data/analysis_result.json' %}";
+
+        // [Function 1] 000 차트
+        async function render000Chart(data) {
+            const districts = data.all_districts;
+            const macro = data.macro;
+
+            const scatterPoints = districts.map(d => ({
+                x: d.population,
+                y: d.busstop_count,
+                name: d.name,
+                residual: d.residual
+            }));
+
+            const pops = scatterPoints.map(p => p.x);
+            const minPop = Math.min(...pops);
+            const maxPop = Math.max(...pops);
+            const slope = parseFloat(macro.slope);
+            const intercept = parseFloat(macro.intercept);
+
+            const ctx = document.getElementById('scatterChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: '행정동',
+                        data: scatterPoints,
+                        backgroundColor: (ctx) => {
+                            const val = ctx.raw?.residual;
+                            if (val < -20) return 'rgba(255, 99, 132, 0.9)'; 
+                            if (val > 20) return 'rgba(54, 162, 235, 0.9)';  
+                            return 'rgba(75, 192, 192, 0.6)';
+                        },
+                        pointRadius: 5
+                    },
+                    {
+                        type: 'line',
+                        label: '적정 공급선',
+                        data: [
+                            { x: minPop, y: slope * minPop + intercept },
+                            { x: maxPop, y: slope * maxPop + intercept }
+                        ],
+                        borderColor: '#ff0055',
+                        borderWidth: 3,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => {
+                                    if(ctx.dataset.type === 'line') return null;
+                                    return `${ctx.raw.name}: 잔차 ${ctx.raw.residual}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // [Function 2] 000 지도
+        async function render000Map(data) {
+            const map = L.map('000Map').setView([37.5665, 126.9780], 11);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            const stops = data.bus_stops || [];
+            // 성능을 위해 최대 2000개만 표시하거나 전체 표시
+            stops.slice(0, 3000).forEach(stop => {
+                const lat = parseFloat(stop.latitude);
+                const lng = parseFloat(stop.longitude);
+                if (isNaN(lat) || isNaN(lng)) return;
+
+                L.circleMarker([lat, lng], {
+                    radius: 2,
+                    fillColor: "#ff7800",
+                    color: "#000",
+                    weight: 0,
+                    opacity: 1,
+                    fillOpacity: 0.6
+                }).bindPopup(`<b>${stop.name}</b>`).addTo(map);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch(ANALYSIS_JSON_URL);
+                const data = await res.json();
+                render000Chart(data);
+                render000Map(data);
+            } catch (e) {
+                console.error(e);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -240,7 +240,11 @@ def 000(request):
     """
     return render(request, 'main/000.html')
 
-
+def visualization_report(request):
+    """
+    000(산점도) + 000(타임랩스) 시각화를 통합하여 보여주는 페이지
+    """
+    return render(request, 'main/visualization_report.html')
 def 000_visualization(request):
     """
     김000 팀원을 위한 시각화 페이지 뷰.

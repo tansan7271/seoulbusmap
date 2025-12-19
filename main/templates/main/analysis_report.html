@@ -14,6 +14,7 @@
         max-width: 1200px;
         margin: 0 auto;
         padding: 20px;
+        padding-top: 60px; /* 홈 버튼 공간 확보 */
       }
       h1,
       h2,
@@ -73,16 +74,37 @@
         height: 400px;
         width: 100%;
       }
-      .back-link {
-        display: inline-block;
-        margin-bottom: 20px;
+      
+      /* [New] 홈 버튼 스타일 (Fixed) */
+      .btn-home-fixed {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 2000;
+        background-color: #333;
+        color: white;
         text-decoration: none;
-        color: #007bff;
+        padding: 10px 20px;
+        border-radius: 30px;
+        font-weight: bold;
+        font-size: 0.9rem;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .btn-home-fixed:hover {
+        background-color: #555;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.3);
       }
     </style>
   </head>
   <body>
-    <a href="{% url 'index' %}" class="back-link">← 메인으로 돌아가기</a>
+    <a href="{% url 'index' %}" class="btn-home-fixed">
+      <span>🏠</span> 처음으로
+    </a>
 
     <h1>SeoulBusMap 분석 단계 보고서</h1>
     <p>
@@ -97,7 +119,6 @@
     </div>
     {% else %}
 
-    <!-- 1. Macro Analysis -->
     <div class="section">
       <h2>1. 거시적 분석: 수요-공급 상관관계</h2>
       <p>
@@ -129,7 +150,6 @@
       </p>
     </div>
 
-    <!-- 2. Micro Analysis -->
     <div class="section">
       <h2>2. 미시적 분석: 교통 소외 지역 도출 (잔차 분석)</h2>
       <p>
@@ -184,10 +204,8 @@
           {% endfor %}
         </tbody>
       </table>
-      </table>
     </div>
 
-    <!-- 2.5 Excluded Districts -->
     <div class="section">
         <h2>⚠️ 분석 제외 지역 (데이터 부족/행정구역 변경 의심)</h2>
         <p>인구 데이터가 없거나 정류장이 0개인 지역은 통계적 왜곡을 방지하기 위해 분석에서 제외하였습니다.</p>
@@ -221,7 +239,6 @@
         {% endif %}
     </div>
 
-    <!-- 3. Context Analysis -->
     <div class="section">
       <h2>3. 맥락 분석: 주말 집중도 지수 (Weekend Intensity Index)</h2>
       <p>주말 대비 주중 승객 비율을 통해 도시의 성격을 분류합니다.

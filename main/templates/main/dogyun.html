@@ -5,7 +5,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>시계열 데이터 시각화 (시간별 유동인구)</title>
-    <!-- MapLibre GL JS -->
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
     <link
       href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css"
@@ -29,7 +28,157 @@
         width: 100%;
       }
 
-      /* --- 하단 컨트롤 오버레이 (White Glassmorphism) --- */
+      /* --- [New] 홈 버튼 스타일 (지도 위에 뜸) --- */
+      .btn-home-map {
+        position: absolute;
+        top: 24px;
+        left: 24px;
+        z-index: 30; /* 컨트롤보다 위에 배치 */
+        background-color: white;
+        color: #333;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 0.95rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid rgba(0,0,0,0.05);
+      }
+      .btn-home-map:hover {
+        background-color: #f8f9fa;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        color: #007bff;
+      }
+
+      /* --- 우측 상단 설명 버튼 & 박스 스타일 --- */
+      .info-toggle-btn {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        z-index: 20;
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 30px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
+        transition: all 0.2s;
+        font-family: inherit;
+        font-size: 0.95rem;
+      }
+      .info-toggle-btn:hover {
+        background: #0056b3;
+        transform: translateY(-2px);
+      }
+
+      .info-box {
+        display: none; /* 기본적으로 숨김 */
+        position: absolute;
+        top: 70px;
+        right: 24px;
+        width: 360px; /* 너비 약간 확장 */
+        z-index: 20;
+        background: rgba(255, 255, 255, 0.98);
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        font-family: "Pretendard", sans-serif;
+        line-height: 1.6;
+        max-height: 80vh;
+        overflow-y: auto;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        animation: slideIn 0.3s ease-out;
+      }
+      @keyframes slideIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .info-box h3 {
+        margin-top: 0;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 10px;
+        color: #333;
+        font-size: 1.3rem;
+      }
+      .info-box p {
+        color: #555;
+        font-size: 0.95rem;
+        margin-bottom: 12px;
+      }
+      .close-btn {
+        background: #f1f3f5;
+        border: none;
+        padding: 5px 12px;
+        border-radius: 15px;
+        cursor: pointer;
+        float: right;
+        font-size: 0.8rem;
+        color: #666;
+        font-weight: bold;
+      }
+      .close-btn:hover { background: #e9ecef; }
+
+      /* [New] 내부 스타일링 요소 */
+      .formula-box {
+        background: #f0f7ff;
+        border: 1px solid #cce5ff;
+        border-radius: 8px;
+        padding: 12px;
+        text-align: center;
+        margin: 15px 0;
+        font-weight: bold;
+        color: #0056b3;
+      }
+      .category-list {
+        list-style: none;
+        padding: 0;
+        margin: 15px 0;
+      }
+      .category-item {
+        margin-bottom: 8px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+      }
+      .cat-badge {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 10px;
+      }
+      .cat-business { background-color: #e3f2fd; border-left: 4px solid #2196f3; }
+      .dot-business { background-color: #2196f3; }
+      
+      .cat-residential { background-color: #fff3e0; border-left: 4px solid #ff9800; }
+      .dot-residential { background-color: #ff9800; }
+
+      .cat-cultural { background-color: #ffebee; border-left: 4px solid #f44336; }
+      .dot-cultural { background-color: #f44336; }
+
+      .policy-implication {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        padding: 15px;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        color: #333;
+        font-weight: 500;
+      }
+
+
+      /* --- 하단 컨트롤 오버레이 --- */
       .overlay {
         position: absolute;
         bottom: 40px;
@@ -58,123 +207,10 @@
         letter-spacing: -0.5px;
       }
 
-      /* 슬라이더 등 UI 요소 색상 조정 */
-      label {
-        color: #444;
-        font-weight: 600;
-      }
-
-      #date-display {
-        color: #0072ff;
-        font-weight: 800;
-      }
+      label { color: #444; font-weight: 600; }
+      #date-display { color: #0072ff; font-weight: 800; font-size: 2.2rem; margin: 12px 0 20px 0; font-variant-numeric: tabular-nums; text-shadow: 0 2px 10px rgba(0, 114, 255, 0.1); }
 
       /* 날짜 슬라이더 커스텀 */
-      input[type="range"] {
-        background: #e0e0e0;
-      }
-
-      /* 스피드 버튼 */
-      .bg-gray-700 {
-        background-color: #f0f0f0 !important;
-        color: #333 !important;
-        border: 1px solid #ddd;
-      }
-      .bg-blue-600 {
-        background-color: #0072ff !important;
-        color: white !important;
-      }
-
-      button {
-        transition: all 0.2s;
-        font-weight: 600;
-      }
-      button:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      }
-
-      /* 로딩 인디케이터 */
-      #loading {
-        color: #333;
-        background: rgba(255, 255, 255, 0.8);
-      }
-
-      #date-display {
-        font-size: 2.2rem;
-        font-weight: 700;
-        margin: 12px 0 20px 0;
-        font-variant-numeric: tabular-nums;
-        color: #0072ff; /* 라이트 테마 강조색 */
-        /* Text Shadow removed for cleaner look in light mode, or subtle one */
-        text-shadow: 0 2px 10px rgba(0, 114, 255, 0.1);
-      }
-
-      /* --- 상단 컨트롤 (모드 스위치 & 속도) --- */
-      .top-controls {
-        position: absolute;
-        top: 24px;
-        left: 24px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        z-index: 20;
-      }
-      .control-group {
-        background: rgba(255, 255, 255, 0.95);
-        padding: 6px;
-        border-radius: 12px;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        display: flex;
-        gap: 4px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        backdrop-filter: blur(8px);
-      }
-      .control-btn {
-        background: transparent;
-        border: 1px solid transparent;
-        color: #555;
-        padding: 8px 16px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 0.9rem;
-        transition: all 0.2s;
-      }
-      .control-btn:hover {
-        background: rgba(0, 0, 0, 0.03);
-        color: #333;
-      }
-      .control-btn.active {
-        background: #0072ff;
-        color: white;
-        box-shadow: 0 2px 6px rgba(0, 114, 255, 0.25);
-      }
-
-      /* --- 데이트 피커 (Intensity Mode) --- */
-      .date-picker-container {
-        display: flex;
-        gap: 8px;
-        justify-content: center;
-        align-items: center;
-        margin: 20px 0;
-      }
-      .date-input {
-        padding: 10px 14px;
-        border-radius: 10px;
-        border: 1px solid #ddd;
-        font-family: inherit;
-        font-size: 1rem;
-        color: #333;
-        background: #fdfdfd;
-        outline: none;
-        transition: border-color 0.2s;
-      }
-      .date-input:focus {
-        border-color: #0072ff;
-      }
-
-      /* --- 슬라이더 커스텀 --- */
       input[type="range"] {
         width: 100%;
         margin: 10px 0;
@@ -202,11 +238,12 @@
         transition: transform 0.1s;
         border: 2px solid #fff;
       }
-      input[type="range"]::-webkit-slider-thumb:hover {
-        transform: scale(1.1);
-      }
+      input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
 
-      /* --- 재생 버튼 --- */
+      /* 버튼 공통 */
+      button { transition: all 0.2s; font-weight: 600; }
+      button:hover { transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); }
+
       .play-btn {
         background: #0072ff;
         border: none;
@@ -216,97 +253,148 @@
         cursor: pointer;
         font-weight: 700;
         font-size: 1.05rem;
-        transition: all 0.3s ease;
         margin-top: 10px;
         box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
       }
-      .play-btn:hover {
-        background: #005bb5;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 114, 255, 0.4);
+      .play-btn:hover { background: #005bb5; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 114, 255, 0.4); }
+
+      /* 상단 컨트롤 (모드 스위치 & 속도) */
+      .top-controls {
+        position: absolute;
+        top: 80px; /* [수정] 홈 버튼 자리 확보를 위해 아래로 이동 */
+        left: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        z-index: 20;
       }
+      .control-group {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 6px;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        gap: 4px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(8px);
+      }
+      .control-btn {
+        background: transparent;
+        border: 1px solid transparent;
+        color: #555;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+      .control-btn:hover { background: rgba(0, 0, 0, 0.03); color: #333; }
+      .control-btn.active { background: #0072ff; color: white; box-shadow: 0 2px 6px rgba(0, 114, 255, 0.25); }
+
+      /* 데이트 피커 */
+      .date-picker-container { display: flex; gap: 8px; justify-content: center; align-items: center; margin: 20px 0; }
+      .date-input {
+        padding: 10px 14px; border-radius: 10px; border: 1px solid #ddd;
+        font-family: inherit; font-size: 1rem; color: #333; background: #fdfdfd; outline: none; transition: border-color 0.2s;
+      }
+      .date-input:focus { border-color: #0072ff; }
     </style>
   </head>
   <body>
     <div id="map"></div>
 
-    <!-- 좌측 상단 컨트롤 (모드, 속도) -->
+    <a href="{% url 'index' %}" class="btn-home-map">
+      <span>🏠</span> 처음으로
+    </a>
+
     <div class="top-controls">
       <div class="control-group">
-        <button
-          class="control-btn active"
-          id="btn-mode-usage"
-          onclick="switchMode('usage')"
-        >
-          이용률 변화
-        </button>
-        <button
-          class="control-btn"
-          id="btn-mode-intensity"
-          onclick="switchMode('intensity')"
-        >
-          주말 집중도
-        </button>
+        <button class="control-btn active" id="btn-mode-usage" onclick="switchMode('usage')">이용률 변화</button>
+        <button class="control-btn" id="btn-mode-intensity" onclick="switchMode('intensity')">주말 집중도</button>
       </div>
       <div class="control-group" id="speed-controls">
         <button class="control-btn" onclick="setSpeed(0.0375)">x0.5</button>
-        <button
-          class="control-btn active"
-          id="btn-speed-1"
-          onclick="setSpeed(0.075)"
-        >
-          x1.0
-        </button>
+        <button class="control-btn active" id="btn-speed-1" onclick="setSpeed(0.075)">x1.0</button>
         <button class="control-btn" onclick="setSpeed(0.125)">x1.5</button>
       </div>
     </div>
 
-    <!-- 하단 메인 오버레이 -->
+    <button class="info-toggle-btn" onclick="toggleInfo()">📖 분석 리포트 보기</button>
+
+    <div id="infoBox" class="info-box">
+        <button class="close-btn" onclick="toggleInfo()">✕ 닫기</button>
+        <h3>🌆 도시의 성격을 규명하다</h3>
+        
+        <p>
+            <strong>"단순히 어디가 부족한지 아는 것만으로는 충분하지 않습니다."</strong><br>
+            왜 부족한가? 그리고 언제 필요한가? 라는 맥락을 이해해야 실질적인 해결책을 낼 수 있기 때문입니다.
+        </p>
+        <p>
+            예를 들어, 매일 출퇴근 전쟁을 치르는 주거지역과 주말 나들이객으로 붐비는 문화지역의 불편함은 그 성격이 완전히 다릅니다. 이 차이를 무시하고 일률적으로 버스를 투입하는 것은 예산 낭비입니다.
+        </p>
+
+        <p>따라서 저희는 과거 시계열 데이터를 전수 조사하여 <strong>주말 집중도 지수(WII)</strong>를 고안했습니다.</p>
+
+        <div class="formula-box">
+            WII = 주말 일평균 승하차 / 주중 일평균 승하차
+        </div>
+
+        <p>서울시 전체 행정동의 평균 WII는 약 0.71입니다. 저희는 이를 기준으로 도시의 성격을 세 가지로 분류했습니다.</p>
+
+        <ul class="category-list">
+            <li class="category-item cat-business">
+                <span class="cat-badge dot-business"></span>
+                <div>
+                    <strong>업무 지구 (WII < 0.65)</strong><br>
+                    <span style="font-size:0.85em; color:#666;">평균보다 낮음. 주말에 텅 비는 오피스 타운.</span>
+                </div>
+            </li>
+            <li class="category-item cat-residential">
+                <span class="cat-badge dot-residential"></span>
+                <div>
+                    <strong>주거 지구 (0.65 ~ 0.85)</strong><br>
+                    <span style="font-size:0.85em; color:#666;">평균 범위. 표준적인 이용 패턴.</span>
+                </div>
+            </li>
+            <li class="category-item cat-cultural">
+                <span class="cat-badge dot-cultural"></span>
+                <div>
+                    <strong>문화/상업 지구 (WII > 0.85)</strong><br>
+                    <span style="font-size:0.85em; color:#666;">평균보다 높음. 주말에 사람이 몰리는 핫플.</span>
+                </div>
+            </li>
+        </ul>
+
+        <div class="policy-implication">
+            <strong style="color:#0072ff; display:block; margin-bottom:5px;">💡 입체적 해결책 제시</strong>
+            앞서 도출한 '소외 지역(잔차)' 정보에 이 '지구 성격' 정보를 결합하면, <br><br>
+            "XX동(업무)은 출퇴근 배차 집중", "OO동(문화)은 주말 전용 노선 확충"과 같이 <strong>지역 특성에 최적화된 구체적이고 실효성 있는 정책</strong>을 제언할 수 있습니다.
+        </div>
+    </div>
+
     <div class="overlay">
       <h1 id="overlay-title">대중교통 이용량 시계열 분석</h1>
 
-      <!-- [Mode 1] Usage Time Series -->
       <div id="wrapper-usage">
         <div id="date-display">데이터 로딩 중...</div>
-        <input
-          type="range"
-          id="time-slider"
-          min="0"
-          max="100"
-          value="0"
-          step="0.05"
-        />
+        <input type="range" id="time-slider" min="0" max="100" value="0" step="0.05" />
         <div>
           <button id="play-pause" class="play-btn">▶ 재생</button>
         </div>
       </div>
 
-      <!-- [Mode 2] Weekend Intensity -->
       <div id="wrapper-intensity" style="display: none">
-        <p
-          style="
-            color: #555;
-            margin-bottom: 15px;
-            font-size: 0.95rem;
-            line-height: 1.5;
-          "
-        >
+        <p style="color: #555; margin-bottom: 15px; font-size: 0.95rem; line-height: 1.5;">
           특정 기간의 <b>주말/평일 이용객 비율</b>을 분석합니다.<br />
-          <span style="color: #ff0844; font-weight: bold">붉은색</span>은 주말
-          핫플레이스,
-          <span style="color: #4facfe; font-weight: bold">푸른색</span>은 오피스
-          상권입니다.
+          <span style="color: #ff0844; font-weight: bold">붉은색</span>은 주말 핫플레이스,
+          <span style="color: #4facfe; font-weight: bold">푸른색</span>은 오피스 상권입니다.
         </p>
         <div class="date-picker-container">
           <input type="date" id="intensity-start" class="date-input" />
           <span style="color: #888; font-weight: bold">~</span>
           <input type="date" id="intensity-end" class="date-input" />
         </div>
-        <button
-          class="play-btn"
-          onclick="analyzeIntensity()"
-          style="background: #00c6ff"
-        >
+        <button class="play-btn" onclick="analyzeIntensity()" style="background: #00c6ff">
           분석 실행
         </button>
       </div>
@@ -315,62 +403,45 @@
     <script>
       /**
        * [000's Visualization Logic]
-       * MapLibre GL JS를 활용한 3D 서울시 버스 이용량 시각화
        */
+      
+      // 설명창 토글 함수
+      function toggleInfo() {
+        const box = document.getElementById("infoBox");
+        if (box.style.display === "none" || box.style.display === "") {
+            box.style.display = "block";
+        } else {
+            box.style.display = "none";
+        }
+      }
 
-      // 1. 지도 초기화 (MapLibre - Light Map)
+      // 1. 지도 초기화
       const map = new maplibregl.Map({
         container: "map",
-        // CartoDB Positron (Light) 스타일 적용
         style: {
           version: 8,
           sources: {
             "carto-positron": {
               type: "raster",
-              tiles: [
-                "https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
-              ],
+              tiles: ["https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"],
               tileSize: 256,
               attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
             },
           },
-          layers: [
-            {
-              id: "carto-positron-layer",
-              type: "raster",
-              source: "carto-positron",
-              minzoom: 0,
-              maxzoom: 19,
-            },
-          ],
+          layers: [{ id: "carto-positron-layer", type: "raster", source: "carto-positron", minzoom: 0, maxzoom: 19 }],
         },
-        center: [126.986, 37.555],
-        zoom: 10.8,
-        pitch: 55,
-        bearing: -15,
-        antialias: true,
+        center: [126.986, 37.555], zoom: 10.8, pitch: 55, bearing: -15, antialias: true,
       });
 
-      // 전역 상태 변수
-      let timeSeriesData = {};
-      let dates = [];
-      let districtStats = {};
-      let isPlaying = false;
-      let animationFrame;
-      let animationStep = 0.075;
-      let distIdToFeatureIdMap = {};
-      let currentMode = "usage"; // 'usage' | 'intensity'
+      let timeSeriesData = {}; let dates = []; let districtStats = {};
+      let isPlaying = false; let animationFrame; let animationStep = 0.075;
+      let distIdToFeatureIdMap = {}; let currentMode = "usage";
 
       map.on("load", async () => {
         try {
-          // 2. 데이터 비동기 로드
-          const geoResponse = await fetch(
-            "{% static 'main/data/seoul_geo.json' %}"
-          );
+          const geoResponse = await fetch("{% static 'main/data/seoul_geo.json' %}");
           const geoData = await geoResponse.json();
-          const analysisResponse = await fetch(
-            "{% static 'main/data/analysis_result.json' %}"
-          );
+          const analysisResponse = await fetch("{% static 'main/data/analysis_result.json' %}");
           const analysisData = await analysisResponse.json();
 
           timeSeriesData = analysisData.district_time_series || {};
@@ -379,31 +450,19 @@
           if (analysisData.all_districts) {
             analysisData.all_districts.forEach((d) => {
               if (d.district_id) {
-                districtStats[d.district_id] = {
-                  name: d.name,
-                  index: d.weekend_intensity_index,
-                };
+                districtStats[d.district_id] = { name: d.name, index: d.weekend_intensity_index };
               }
             });
           }
 
-          if (dates.length === 0) {
-            document.getElementById("date-display").innerText = "데이터 없음";
-            return;
-          }
+          if (dates.length === 0) { document.getElementById("date-display").innerText = "데이터 없음"; return; }
 
-          // Dates for Picker
           const fmtDate = (s) => s.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3");
           if (dates.length > 0) {
-            document.getElementById("intensity-start").value = fmtDate(
-              dates[0]
-            );
-            document.getElementById("intensity-end").value = fmtDate(
-              dates[dates.length - 1]
-            );
+            document.getElementById("intensity-start").value = fmtDate(dates[0]);
+            document.getElementById("intensity-end").value = fmtDate(dates[dates.length - 1]);
           }
 
-          // ID Map
           geoData.features.forEach((f) => {
             let dbId = f.properties.adm_cd2;
             if (dbId && dbId.length === 10) dbId = dbId.substring(0, 8);
@@ -411,96 +470,36 @@
             if (dbId && featureId) distIdToFeatureIdMap[dbId] = featureId;
           });
 
-          // Slider Init
           const slider = document.getElementById("time-slider");
-          slider.max = dates.length - 1;
-          slider.value = 0;
-          slider.step = 0.05;
+          slider.max = dates.length - 1; slider.value = 0; slider.step = 0.05;
 
-          // 3. 지도 레이어 설정
-          map.addSource("districts", {
-            type: "geojson",
-            data: geoData,
-            promoteId: "adm_cd",
-          });
+          map.addSource("districts", { type: "geojson", data: geoData, promoteId: "adm_cd" });
 
-          // (1) Base (Transparent)
+          map.addLayer({ id: "districts-base", type: "fill", source: "districts", paint: { "fill-color": "#fff", "fill-opacity": 0.01 } });
+          map.addLayer({ id: "districts-outline", type: "line", source: "districts", paint: { "line-color": "#333", "line-width": 1.5, "line-dasharray": [2, 3], "line-opacity": 0 } });
+
           map.addLayer({
-            id: "districts-base",
-            type: "fill",
-            source: "districts",
-            paint: { "fill-color": "#fff", "fill-opacity": 0.01 },
-          });
-
-          // (2) Outline (Dashed - for Intensity Mode)
-          map.addLayer({
-            id: "districts-outline",
-            type: "line",
-            source: "districts",
+            id: "districts-extrusion", type: "fill-extrusion", source: "districts",
             paint: {
-              "line-color": "#333",
-              "line-width": 1.5,
-              "line-dasharray": [2, 3],
-              "line-opacity": 0, // Hidden by default
-            },
-          });
-
-          // (3) Extrusion (Dynamic)
-          map.addLayer({
-            id: "districts-extrusion",
-            type: "fill-extrusion",
-            source: "districts",
-            paint: {
-              // Default Usage Style
               "fill-extrusion-color": [
-                "interpolate",
-                ["linear"],
-                ["coalesce", ["feature-state", "usage"], 0],
-                0,
-                "rgba(255, 255, 255, 0)",
-                100,
-                "#00c6ff",
-                5000,
-                "#00f260",
-                15000,
-                "#ffb144",
-                30000,
-                "#ff0844",
-                80000,
-                "#7303c0",
+                "interpolate", ["linear"], ["coalesce", ["feature-state", "usage"], 0],
+                0, "rgba(255, 255, 255, 0)",
+                100, "#00c6ff", 5000, "#00f260", 15000, "#ffb144", 30000, "#ff0844", 80000, "#7303c0",
               ],
-              "fill-extrusion-height": [
-                "*",
-                ["coalesce", ["feature-state", "usage"], 0],
-                0.3,
-              ],
-              "fill-extrusion-base": 0,
-              "fill-extrusion-opacity": 0.85,
+              "fill-extrusion-height": ["*", ["coalesce", ["feature-state", "usage"], 0], 0.3],
+              "fill-extrusion-base": 0, "fill-extrusion-opacity": 0.85,
               "fill-extrusion-height-transition": { duration: 500, delay: 0 },
               "fill-extrusion-color-transition": { duration: 500, delay: 0 },
             },
           });
 
-          // (4) Reference Plane (Glass Ceiling at Index 1.0)
           map.addLayer({
-            id: "districts-reference",
-            type: "fill-extrusion",
-            source: "districts",
-            paint: {
-              "fill-extrusion-color": "#d9eaff", // Ice Blue tint
-              "fill-extrusion-height": 6000,
-              "fill-extrusion-base": 5950, // Thicker slice
-              "fill-extrusion-opacity": 0.45, // More visible "Glass"
-            },
+            id: "districts-reference", type: "fill-extrusion", source: "districts",
+            paint: { "fill-extrusion-color": "#d9eaff", "fill-extrusion-height": 6000, "fill-extrusion-base": 5950, "fill-extrusion-opacity": 0.45 },
             layout: { visibility: "none" },
           });
 
-          // Popup Logic
-          const popup = new maplibregl.Popup({
-            closeButton: false,
-            closeOnClick: false,
-            offset: 20,
-          });
+          const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 20 });
           map.on("mousemove", "districts-extrusion", (e) => {
             if (e.features.length > 0) {
               map.getCanvas().style.cursor = "pointer";
@@ -509,97 +508,52 @@
               if (rawId) {
                 const dbId = rawId.substring(0, 8);
                 const stats = districtStats[dbId];
-
-                // Display distinct info based on mode?
-                // Currently just shows Name + Weekend Index (Calculated or Static?)
-                // Let's show calculated intensity if in intensity mode.
-                // But feature state is accessible.
-
-                // Simple Static Display for now, or fetch usage
-                let displayVal = "";
-
-                if (currentMode === "intensity") {
-                  // Check current intensity state?
-                  // Cannot easily get feature-state in mousemove without lookup.
-                  // But we have stats.index (Static).
-                  // Let's show the Static Index for now, or just Name.
-                  // Ideally we show the value rendered.
-                }
-
                 if (stats) {
-                  const indexVal = stats.index
-                    ? parseFloat(stats.index).toFixed(2)
-                    : "N/A";
+                  const indexVal = stats.index ? parseFloat(stats.index).toFixed(2) : "N/A";
                   const html = `<div style="text-align: center;">
                         <h4 style="margin: 0 0 8px 0; font-size: 1.1em; border-bottom: 1px solid #eee; padding-bottom:5px;">${stats.name}</h4>
                         <div style="font-size: 0.9em; display:flex; justify-content:space-between; gap:10px;">
                             <span>주말 집중도(전체 평균)</span>
                             <span style="font-weight:bold; color: #0072ff;">${indexVal}</span>
-                        </div>
-                   </div>`;
+                        </div></div>`;
                   popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
                 }
               }
             }
           });
-          map.on("mouseleave", "districts-extrusion", () => {
-            map.getCanvas().style.cursor = "";
-            popup.remove();
-          });
+          map.on("mouseleave", "districts-extrusion", () => { map.getCanvas().style.cursor = ""; popup.remove(); });
 
           updateMap(0);
           setupEventListeners(slider);
-
-          // Initial Mode
           switchMode("usage");
-        } catch (err) {
-          console.error("Critical Error:", err);
-          document.getElementById("date-display").innerText = "오류 발생";
-        }
+        } catch (err) { console.error("Critical Error:", err); document.getElementById("date-display").innerText = "오류 발생"; }
       });
 
-      // --- Helper Functions ---
-
-      function lerp(start, end, t) {
-        return start * (1 - t) + end * t;
-      }
+      function lerp(start, end, t) { return start * (1 - t) + end * t; }
 
       function updateMap(floatIndex) {
-        if (currentMode !== "usage") return; // Only animate in usage mode
-
+        if (currentMode !== "usage") return;
         const lowerIndex = Math.floor(floatIndex);
         const upperIndex = Math.min(lowerIndex + 1, dates.length - 1);
         const t = floatIndex - lowerIndex;
-
-        document.getElementById("date-display").innerText =
-          dates[Math.round(floatIndex)];
-
+        document.getElementById("date-display").innerText = dates[Math.round(floatIndex)];
         const lowerData = timeSeriesData[dates[lowerIndex]] || {};
         const upperData = timeSeriesData[dates[upperIndex]] || {};
-
         for (const [dbId, featureId] of Object.entries(distIdToFeatureIdMap)) {
           const val1 = lowerData[dbId] || 0;
           const val2 = upperData[dbId] || 0;
           const interpolatedUsage = lerp(val1, val2, t);
-          map.setFeatureState(
-            { source: "districts", id: featureId },
-            { usage: interpolatedUsage }
-          );
+          map.setFeatureState({ source: "districts", id: featureId }, { usage: interpolatedUsage });
         }
       }
 
       function setupEventListeners(slider) {
-        slider.addEventListener("input", (e) => {
-          // Only update usage map if in usage mode
-          if (currentMode === "usage") updateMap(parseFloat(e.target.value));
-        });
-
+        slider.addEventListener("input", (e) => { if (currentMode === "usage") updateMap(parseFloat(e.target.value)); });
         const playBtn = document.getElementById("play-pause");
         playBtn.addEventListener("click", () => {
           isPlaying = !isPlaying;
           playBtn.innerText = isPlaying ? "⏸ 일시정지" : "▶ 재생";
-          if (isPlaying) animate(slider);
-          else cancelAnimationFrame(animationFrame);
+          if (isPlaying) animate(slider); else cancelAnimationFrame(animationFrame);
         });
       }
 
@@ -609,97 +563,43 @@
         if (currentVal >= dates.length - 1) currentVal = 0;
         let nextVal = currentVal + animationStep;
         if (nextVal > dates.length - 1) nextVal = dates.length - 1;
-        slider.value = nextVal;
-        updateMap(nextVal);
+        slider.value = nextVal; updateMap(nextVal);
         animationFrame = requestAnimationFrame(() => animate(slider));
       }
 
-      // --- New Mode Logic ---
-
       window.switchMode = function (mode) {
         currentMode = mode;
-
-        // Button State
-        document.getElementById("btn-mode-usage").className =
-          mode === "usage" ? "control-btn active" : "control-btn";
-        document.getElementById("btn-mode-intensity").className =
-          mode === "intensity" ? "control-btn active" : "control-btn";
-
-        // Wrapper State
-        document.getElementById("wrapper-usage").style.display =
-          mode === "usage" ? "block" : "none";
-        document.getElementById("wrapper-intensity").style.display =
-          mode === "intensity" ? "block" : "none";
-        document.getElementById("speed-controls").style.visibility =
-          mode === "usage" ? "visible" : "hidden";
+        document.getElementById("btn-mode-usage").className = mode === "usage" ? "control-btn active" : "control-btn";
+        document.getElementById("btn-mode-intensity").className = mode === "intensity" ? "control-btn active" : "control-btn";
+        document.getElementById("wrapper-usage").style.display = mode === "usage" ? "block" : "none";
+        document.getElementById("wrapper-intensity").style.display = mode === "intensity" ? "block" : "none";
+        document.getElementById("speed-controls").style.visibility = mode === "usage" ? "visible" : "hidden";
 
         if (mode === "usage") {
-          // Usage Style Recovery
           map.setLayoutProperty("districts-reference", "visibility", "none");
-
-          map.setPaintProperty("districts-extrusion", "fill-extrusion-height", [
-            "*",
-            ["coalesce", ["feature-state", "usage"], 0],
-            0.3,
-          ]);
+          map.setPaintProperty("districts-extrusion", "fill-extrusion-height", ["*", ["coalesce", ["feature-state", "usage"], 0], 0.3]);
           map.setPaintProperty("districts-extrusion", "fill-extrusion-color", [
-            "interpolate",
-            ["linear"],
-            ["coalesce", ["feature-state", "usage"], 0],
-            0,
-            "rgba(255,255,255,0)",
-            100,
-            "#00c6ff",
-            5000,
-            "#00f260",
-            15000,
-            "#ffb144",
-            30000,
-            "#ff0844",
-            80000,
-            "#7303c0",
+            "interpolate", ["linear"], ["coalesce", ["feature-state", "usage"], 0],
+            0, "rgba(255,255,255,0)", 100, "#00c6ff", 5000, "#00f260", 15000, "#ffb144", 30000, "#ff0844", 80000, "#7303c0",
           ]);
           map.setPaintProperty("districts-outline", "line-opacity", 0);
-          const slider = document.getElementById("time-slider");
-          updateMap(parseFloat(slider.value));
+          const slider = document.getElementById("time-slider"); updateMap(parseFloat(slider.value));
         } else {
-          // Intensity Style
-          // Reset Animation
-          isPlaying = false;
-          document.getElementById("play-pause").innerText = "▶ 재생";
-          cancelAnimationFrame(animationFrame);
-
+          isPlaying = false; document.getElementById("play-pause").innerText = "▶ 재생"; cancelAnimationFrame(animationFrame);
           map.setLayoutProperty("districts-reference", "visibility", "visible");
           map.setPaintProperty("districts-outline", "line-opacity", 0.4);
-
-          // Apply Intensity Style (Scale Increased x6000)
-          map.setPaintProperty("districts-extrusion", "fill-extrusion-height", [
-            "*",
-            ["coalesce", ["feature-state", "intensity"], 0],
-            6000,
-          ]);
+          map.setPaintProperty("districts-extrusion", "fill-extrusion-height", ["*", ["coalesce", ["feature-state", "intensity"], 0], 6000]);
           map.setPaintProperty("districts-extrusion", "fill-extrusion-color", [
-            "interpolate",
-            ["linear"],
-            ["coalesce", ["feature-state", "intensity"], 1],
-            0.6,
-            "#4facfe",
-            0.9,
-            "#fdfbfb",
-            1.3,
-            "#ff0844",
-            2.0,
-            "#7303c0",
+            "interpolate", ["linear"], ["coalesce", ["feature-state", "intensity"], 1],
+            0.6, "#4facfe", 0.9, "#fdfbfb", 1.3, "#ff0844", 2.0, "#7303c0",
           ]);
         }
       };
 
       window.setSpeed = function (speed) {
         animationStep = speed;
-        // Update UI (Simple approach)
         const btns = document.querySelectorAll("#speed-controls .control-btn");
         btns.forEach((b) => b.classList.remove("active"));
-        // Find logic: 0.0375->idx 0, 0.075->idx 1, 0.125->idx 2
         if (speed < 0.05) btns[0].classList.add("active");
         else if (speed < 0.1) btns[1].classList.add("active");
         else btns[2].classList.add("active");
@@ -707,98 +607,37 @@
 
       window.analyzeIntensity = function () {
         const btn = document.querySelector("#wrapper-intensity button");
-        const originalText = btn.innerText;
-        btn.innerText = "분석 중... ⏳";
-        btn.disabled = true;
-
+        const originalText = btn.innerText; btn.innerText = "분석 중... ⏳"; btn.disabled = true;
         setTimeout(() => {
-          if (!dates.length) {
-            alert("데이터가 로드되지 않았습니다.");
-            btn.innerText = originalText;
-            btn.disabled = false;
-            return;
-          }
-
-          // [Fix] 키 포맷(YYYY-MM-DD)과 일치하도록 하이픈 유지
+          if (!dates.length) { alert("데이터가 로드되지 않았습니다."); btn.innerText = originalText; btn.disabled = false; return; }
           const sDateStr = document.getElementById("intensity-start").value;
           const eDateStr = document.getElementById("intensity-end").value;
-
-          console.log(`[Intensity Analysis] Range: ${sDateStr} ~ ${eDateStr}`);
-
-          let sums = {};
-          let matchCount = 0;
+          let sums = {}; let matchCount = 0;
 
           dates.forEach((d) => {
             if (d >= sDateStr && d <= eDateStr) {
               matchCount++;
-
-              // [Fix] YYYY-MM-DD 포맷 파싱
-              const pts = d.split("-");
-              const year = parseInt(pts[0]);
-              const month = parseInt(pts[1]) - 1;
-              const day = parseInt(pts[2]);
-              const dt = new Date(year, month, day);
-
-              const isWe = dt.getDay() === 0 || dt.getDay() === 6;
-
+              const pts = d.split("-"); const year = parseInt(pts[0]); const month = parseInt(pts[1]) - 1; const day = parseInt(pts[2]);
+              const dt = new Date(year, month, day); const isWe = dt.getDay() === 0 || dt.getDay() === 6;
               const dayData = timeSeriesData[d] || {};
-
               if (Object.keys(dayData).length === 0) return;
-
               for (const [dbId, val] of Object.entries(dayData)) {
-                if (!sums[dbId])
-                  sums[dbId] = { wdS: 0, wdC: 0, weS: 0, weC: 0 };
-                if (isWe) {
-                  sums[dbId].weS += val;
-                  sums[dbId].weC++;
-                } else {
-                  sums[dbId].wdS += val;
-                  sums[dbId].wdC++;
-                }
+                if (!sums[dbId]) sums[dbId] = { wdS: 0, wdC: 0, weS: 0, weC: 0 };
+                if (isWe) { sums[dbId].weS += val; sums[dbId].weC++; } else { sums[dbId].wdS += val; sums[dbId].wdC++; }
               }
             }
           });
 
-          console.log(`[Intensity Analysis] Matched Dates: ${matchCount}`);
-          if (matchCount === 0) {
-            alert("선택한 기간에 데이터가 없습니다.");
-            btn.innerText = originalText;
-            btn.disabled = false;
-            return;
+          if (matchCount === 0) { alert("선택한 기간에 데이터가 없습니다."); btn.innerText = originalText; btn.disabled = false; return; }
+
+          let maxInt = 0; let updateCount = 0;
+          for (const [dbId, featureId] of Object.entries(distIdToFeatureIdMap)) {
+            const s = sums[dbId]; let intensity = 0;
+            if (s && s.wdC > 0 && s.wdS > 0) { const avgWd = s.wdS / s.wdC; const avgWe = s.weC > 0 ? s.weS / s.weC : 0; intensity = avgWe / avgWd; }
+            if (intensity > maxInt) maxInt = intensity; if (intensity > 0) updateCount++;
+            map.setFeatureState({ source: "districts", id: featureId }, { intensity: intensity });
           }
-
-          let maxInt = 0;
-          let updateCount = 0;
-
-          for (const [dbId, featureId] of Object.entries(
-            distIdToFeatureIdMap
-          )) {
-            const s = sums[dbId];
-            let intensity = 0;
-            if (s && s.wdC > 0 && s.wdS > 0) {
-              const avgWd = s.wdS / s.wdC;
-              const avgWe = s.weC > 0 ? s.weS / s.weC : 0;
-              intensity = avgWe / avgWd;
-            }
-
-            if (intensity > maxInt) maxInt = intensity;
-            if (intensity > 0) updateCount++;
-
-            map.setFeatureState(
-              { source: "districts", id: featureId },
-              { intensity: intensity }
-            );
-          }
-
-          console.log(
-            `[Intensity Analysis] Max Value: ${maxInt}, Updated Features: ${updateCount}`
-          );
-
-          btn.innerText = "분석 완료! ✅";
-          setTimeout(() => {
-            btn.innerText = originalText;
-            btn.disabled = false;
-          }, 2000);
+          btn.innerText = "분석 완료! ✅"; setTimeout(() => { btn.innerText = originalText; btn.disabled = false; }, 2000);
         }, 100);
       };
     </script>
