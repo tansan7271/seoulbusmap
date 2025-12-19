@@ -69,7 +69,7 @@ class Command(BaseCommand):
             # 4-2. 버스 정류장 데이터 (Dot Map용) -> 크기(점유율) 시각화를 위해 승하차 합계 계산
             self.stdout.write("Aggregating bus stop usage data...")
             from main.models import BusStop, BusData, BusDataHistory
-            from django.db.models import Sum, F
+            from django.db.models import Sum, F, Max
             from collections import defaultdict
 
             # 정류장 기본 정보
@@ -103,7 +103,19 @@ class Command(BaseCommand):
             self.stdout.write("Baking time-series data for equalizer...")
             from datetime import timedelta
             
-            end_date = timezone.now().date()
+            # [수정] 데이터가 존재하는 마지막 날짜를 기준으로 30일 산출
+            # 사용자 요청: "데이터가 11월 30일까지 있다면, 오늘이 12월이라도 11월 1일~30일을 베이킹해야 함"
+            latest_result = BusData.objects.aggregate(latest=Max('timestamp'))['latest']
+            if not latest_result:
+                latest_result = BusDataHistory.objects.aggregate(latest=Max('timestamp'))['latest']
+            
+            if latest_result:
+                end_date = latest_result.date()
+                self.stdout.write(f"Latest data found at: {end_date}")
+            else:
+                end_date = timezone.now().date()
+                self.stdout.write(self.style.WARNING("No data found. Using today as end date."))
+
             start_date = end_date - timedelta(days=30)
             
             # DataFrame 활용하여 빠르게 집계

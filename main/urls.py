@@ -8,4 +8,5 @@ urlpatterns = [
     path('analysis/', views.analysis_report, name='analysis_report'),
     path('000/', views.000, name='000'),
     path('000/', views.000_visualization, name='000_visualization'),
+    path('api/analysis/', views.api_analysis_data, name='api_analysis_data'),
 ]

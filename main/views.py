@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from .models import HangJeongDong, BusStop, BusData, HangJeongDongHistory, BusStopHistory, BusDataHistory
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.db.models import Avg, Sum, Count, F
 from django.db.models.functions import TruncDay
+from django.http import JsonResponse
+import pandas as pd
 import json
 import os
 from django.conf import settings
@@ -239,43 +241,62 @@ def 000(request):
     return render(request, 'main/000.html')
 
 
-from django.conf import settings
 def 000_visualization(request):
     """
-    000의 시각화 페이지.
-    1. 거시적 분석 (상관관계 산점도)
-    2. 미시적 분석 (지도 시각화)
+    김000 팀원을 위한 시각화 페이지 뷰.
+    
+    기존에는 이 뷰에서 실시간 분석을 수행했으나, 
+    성능 최적화 및 구조 개선을 위해 클라이언트 사이드(JS)에서 
+    미리 계산된 JSON 데이터(static/main/data/analysis_result.json)를 
+    비동기로 가져와 렌더링하도록 변경되었습니다.
+    
+    따라서 이 뷰는 기본 템플릿만 렌더링하며, 
+    네비게이션 바 구성을 위한 행정동 목록(hjd_list)만 컨텍스트로 전달합니다.
     """
-    # 1. 데이터 분석 수행
-    df = get_analysis_data()
+    context = {
+        'hjd_list': HangJeongDong.objects.all().order_by('name')
+    }
+    return render(request, 'main/000.html', context)
+
+def api_analysis_data(request):
+    """
+    [API] 분석 데이터를 동적으로 계산하여 JSON으로 반환합니다 (날짜 검색용).
+    """
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+
+    start_date = None
+    end_date = None
+
+    try:
+        if start_date_str:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        if end_date_str:
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+    except ValueError:
+        return JsonResponse({'error': 'Invalid date format'}, status=400)
+
+    # 데이터 분석 실행
+    df = get_analysis_data(start_date, end_date)
+
     if df.empty:
-        return render(request, 'main/000.html', {'error': '분석할 데이터가 없습니다.'})
+         return JsonResponse({'error': 'No data found'}, status=404)
 
     results, valid_df = perform_statistical_analysis(df)
-
-    if valid_df.empty:
-        print("valid_df is empty after statistical analysis.")
-        return render(request, 'main/000.html', {'error': '분석할 데이터가 없습니다.'})
-
-    # 2. 템플릿으로 전달할 데이터 준비
-    # 거시분석용 데이터 (산점도)
-    scatter_data = valid_df[['name', 'population', 'busstop_count']].to_dict('records')
     
-    # 미시분석용 데이터 (지도 색칠)
-    residual_map = valid_df.set_index('district_id')['residual'].to_dict()
+    # JSON 직렬화 준비: DataFrame -> Dict
+    all_districts = valid_df.to_dict('records')
+    
+    # NaN 처리 (JSON 표준은 NaN 미지원)
+    for d in all_districts:
+        for k, v in d.items():
+            if pd.isna(v):
+                d[k] = None
 
-    # 자치구별 평균 잔차 계산 (Level 0 시각화용)
-    # district_id의 앞 5자리가 자치구 코드 (예: 11110 종로구)
-    valid_df['gu_code'] = valid_df['district_id'].astype(str).str[:5]
-    district_group = valid_df.groupby('gu_code')['residual'].mean()
-    district_residual_map = district_group.to_dict()
-
-    context = {
-        'scatter_data': json.dumps(scatter_data),
-        'macro_results': json.dumps(results.get('macro', {})),
-        'residual_map': json.dumps(residual_map),
-        'district_residual_map': json.dumps(district_residual_map),
-        'hjd_list': HangJeongDong.objects.all().order_by('name') # 네비게이션용
+    response_data = {
+        'macro': results.get('macro'),
+        'all_districts': all_districts,
+        'generated_at': timezone.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
     
-    return render(request, 'main/000.html', context)
+    return JsonResponse(response_data)
