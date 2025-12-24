@@ -41,17 +41,17 @@
         border-radius: 12px;
         font-weight: 800;
         font-size: 0.95rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         transition: all 0.2s ease;
         display: flex;
         align-items: center;
         gap: 6px;
-        border: 1px solid rgba(0,0,0,0.05);
+        border: 1px solid rgba(0, 0, 0, 0.05);
       }
       .btn-home-map:hover {
         background-color: #f8f9fa;
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
         color: #007bff;
       }
 
@@ -98,8 +98,14 @@
         animation: slideIn 0.3s ease-out;
       }
       @keyframes slideIn {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       .info-box h3 {
@@ -125,7 +131,9 @@
         color: #666;
         font-weight: bold;
       }
-      .close-btn:hover { background: #e9ecef; }
+      .close-btn:hover {
+        background: #e9ecef;
+      }
 
       /* [New] 내부 스타일링 요소 */
       .formula-box {
@@ -158,14 +166,29 @@
         border-radius: 50%;
         margin-right: 10px;
       }
-      .cat-business { background-color: #e3f2fd; border-left: 4px solid #2196f3; }
-      .dot-business { background-color: #2196f3; }
-      
-      .cat-residential { background-color: #fff3e0; border-left: 4px solid #ff9800; }
-      .dot-residential { background-color: #ff9800; }
+      .cat-business {
+        background-color: #e3f2fd;
+        border-left: 4px solid #2196f3;
+      }
+      .dot-business {
+        background-color: #2196f3;
+      }
 
-      .cat-cultural { background-color: #ffebee; border-left: 4px solid #f44336; }
-      .dot-cultural { background-color: #f44336; }
+      .cat-residential {
+        background-color: #fff3e0;
+        border-left: 4px solid #ff9800;
+      }
+      .dot-residential {
+        background-color: #ff9800;
+      }
+
+      .cat-cultural {
+        background-color: #ffebee;
+        border-left: 4px solid #f44336;
+      }
+      .dot-cultural {
+        background-color: #f44336;
+      }
 
       .policy-implication {
         background-color: #f8f9fa;
@@ -176,7 +199,6 @@
         color: #333;
         font-weight: 500;
       }
-
 
       /* --- 하단 컨트롤 오버레이 --- */
       .overlay {
@@ -207,8 +229,18 @@
         letter-spacing: -0.5px;
       }
 
-      label { color: #444; font-weight: 600; }
-      #date-display { color: #0072ff; font-weight: 800; font-size: 2.2rem; margin: 12px 0 20px 0; font-variant-numeric: tabular-nums; text-shadow: 0 2px 10px rgba(0, 114, 255, 0.1); }
+      label {
+        color: #444;
+        font-weight: 600;
+      }
+      #date-display {
+        color: #0072ff;
+        font-weight: 800;
+        font-size: 2.2rem;
+        margin: 12px 0 20px 0;
+        font-variant-numeric: tabular-nums;
+        text-shadow: 0 2px 10px rgba(0, 114, 255, 0.1);
+      }
 
       /* 날짜 슬라이더 커스텀 */
       input[type="range"] {
@@ -238,11 +270,19 @@
         transition: transform 0.1s;
         border: 2px solid #fff;
       }
-      input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
+      input[type="range"]::-webkit-slider-thumb:hover {
+        transform: scale(1.1);
+      }
 
       /* 버튼 공통 */
-      button { transition: all 0.2s; font-weight: 600; }
-      button:hover { transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); }
+      button {
+        transition: all 0.2s;
+        font-weight: 600;
+      }
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
 
       .play-btn {
         background: #0072ff;
@@ -256,7 +296,11 @@
         margin-top: 10px;
         box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
       }
-      .play-btn:hover { background: #005bb5; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 114, 255, 0.4); }
+      .play-btn:hover {
+        background: #005bb5;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 114, 255, 0.4);
+      }
 
       /* 상단 컨트롤 (모드 스위치 & 속도) */
       .top-controls {
@@ -288,16 +332,38 @@
         font-weight: 600;
         font-size: 0.9rem;
       }
-      .control-btn:hover { background: rgba(0, 0, 0, 0.03); color: #333; }
-      .control-btn.active { background: #0072ff; color: white; box-shadow: 0 2px 6px rgba(0, 114, 255, 0.25); }
+      .control-btn:hover {
+        background: rgba(0, 0, 0, 0.03);
+        color: #333;
+      }
+      .control-btn.active {
+        background: #0072ff;
+        color: white;
+        box-shadow: 0 2px 6px rgba(0, 114, 255, 0.25);
+      }
 
       /* 데이트 피커 */
-      .date-picker-container { display: flex; gap: 8px; justify-content: center; align-items: center; margin: 20px 0; }
-      .date-input {
-        padding: 10px 14px; border-radius: 10px; border: 1px solid #ddd;
-        font-family: inherit; font-size: 1rem; color: #333; background: #fdfdfd; outline: none; transition: border-color 0.2s;
+      .date-picker-container {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        align-items: center;
+        margin: 20px 0;
       }
-      .date-input:focus { border-color: #0072ff; }
+      .date-input {
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        font-family: inherit;
+        font-size: 1rem;
+        color: #333;
+        background: #fdfdfd;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .date-input:focus {
+        border-color: #0072ff;
+      }
     </style>
   </head>
   <body>
@@ -309,67 +375,109 @@
 
     <div class="top-controls">
       <div class="control-group">
-        <button class="control-btn active" id="btn-mode-usage" onclick="switchMode('usage')">이용률 변화</button>
-        <button class="control-btn" id="btn-mode-intensity" onclick="switchMode('intensity')">주말 집중도</button>
+        <button
+          class="control-btn active"
+          id="btn-mode-usage"
+          onclick="switchMode('usage')"
+        >
+          이용률 변화
+        </button>
+        <button
+          class="control-btn"
+          id="btn-mode-intensity"
+          onclick="switchMode('intensity')"
+        >
+          주말 집중도
+        </button>
       </div>
       <div class="control-group" id="speed-controls">
         <button class="control-btn" onclick="setSpeed(0.0375)">x0.5</button>
-        <button class="control-btn active" id="btn-speed-1" onclick="setSpeed(0.075)">x1.0</button>
+        <button
+          class="control-btn active"
+          id="btn-speed-1"
+          onclick="setSpeed(0.075)"
+        >
+          x1.0
+        </button>
         <button class="control-btn" onclick="setSpeed(0.125)">x1.5</button>
       </div>
     </div>
 
-    <button class="info-toggle-btn" onclick="toggleInfo()">📖 분석 리포트 보기</button>
+    <button class="info-toggle-btn" onclick="toggleInfo()">
+      📖 분석 리포트 보기
+    </button>
 
     <div id="infoBox" class="info-box">
-        <button class="close-btn" onclick="toggleInfo()">✕ 닫기</button>
-        <h3>🌆 도시의 성격을 규명하다</h3>
-        
-        <p>
-            <strong>"단순히 어디가 부족한지 아는 것만으로는 충분하지 않습니다."</strong><br>
-            왜 부족한가? 그리고 언제 필요한가? 라는 맥락을 이해해야 실질적인 해결책을 낼 수 있기 때문입니다.
-        </p>
-        <p>
-            예를 들어, 매일 출퇴근 전쟁을 치르는 주거지역과 주말 나들이객으로 붐비는 문화지역의 불편함은 그 성격이 완전히 다릅니다. 이 차이를 무시하고 일률적으로 버스를 투입하는 것은 예산 낭비입니다.
-        </p>
+      <button class="close-btn" onclick="toggleInfo()">✕ 닫기</button>
+      <h3>🌆 도시의 성격을 규명하다</h3>
 
-        <p>따라서 저희는 과거 시계열 데이터를 전수 조사하여 <strong>주말 집중도 지수(WII)</strong>를 고안했습니다.</p>
+      <p>
+        <strong
+          >"단순히 어디가 부족한지 아는 것만으로는 충분하지 않습니다."</strong
+        ><br />
+        왜 부족한가? 그리고 언제 필요한가? 라는 맥락을 이해해야 실질적인
+        해결책을 낼 수 있기 때문입니다.
+      </p>
+      <p>
+        예를 들어, 매일 출퇴근 전쟁을 치르는 주거지역과 주말 나들이객으로 붐비는
+        문화지역의 불편함은 그 성격이 완전히 다릅니다. 이 차이를 무시하고
+        일률적으로 버스를 투입하는 것은 예산 낭비입니다.
+      </p>
 
-        <div class="formula-box">
-            WII = 주말 일평균 승하차 / 주중 일평균 승하차
-        </div>
+      <p>
+        따라서 저희는 과거 시계열 데이터를 전수 조사하여
+        <strong>주말 집중도 지수(WII)</strong>를 고안했습니다.
+      </p>
 
-        <p>서울시 전체 행정동의 평균 WII는 약 0.71입니다. 저희는 이를 기준으로 도시의 성격을 세 가지로 분류했습니다.</p>
+      <div class="formula-box">
+        WII = 주말 일평균 승하차 / 주중 일평균 승하차
+      </div>
 
-        <ul class="category-list">
-            <li class="category-item cat-business">
-                <span class="cat-badge dot-business"></span>
-                <div>
-                    <strong>업무 지구 (WII < 0.65)</strong><br>
-                    <span style="font-size:0.85em; color:#666;">평균보다 낮음. 주말에 텅 비는 오피스 타운.</span>
-                </div>
-            </li>
-            <li class="category-item cat-residential">
-                <span class="cat-badge dot-residential"></span>
-                <div>
-                    <strong>주거 지구 (0.65 ~ 0.85)</strong><br>
-                    <span style="font-size:0.85em; color:#666;">평균 범위. 표준적인 이용 패턴.</span>
-                </div>
-            </li>
-            <li class="category-item cat-cultural">
-                <span class="cat-badge dot-cultural"></span>
-                <div>
-                    <strong>문화/상업 지구 (WII > 0.85)</strong><br>
-                    <span style="font-size:0.85em; color:#666;">평균보다 높음. 주말에 사람이 몰리는 핫플.</span>
-                </div>
-            </li>
-        </ul>
+      <p>
+        서울시 전체 행정동의 평균 WII는 약 0.71입니다. 저희는 이를 기준으로
+        도시의 성격을 세 가지로 분류했습니다.
+      </p>
 
-        <div class="policy-implication">
-            <strong style="color:#0072ff; display:block; margin-bottom:5px;">💡 입체적 해결책 제시</strong>
-            앞서 도출한 '소외 지역(잔차)' 정보에 이 '지구 성격' 정보를 결합하면, <br><br>
-            "XX동(업무)은 출퇴근 배차 집중", "OO동(문화)은 주말 전용 노선 확충"과 같이 <strong>지역 특성에 최적화된 구체적이고 실효성 있는 정책</strong>을 제언할 수 있습니다.
-        </div>
+      <ul class="category-list">
+        <li class="category-item cat-business">
+          <span class="cat-badge dot-business"></span>
+          <div>
+            <strong>업무 지구 (WII < 0.65)</strong><br />
+            <span style="font-size: 0.85em; color: #666"
+              >평균보다 낮음. 주말에 텅 비는 오피스 타운.</span
+            >
+          </div>
+        </li>
+        <li class="category-item cat-residential">
+          <span class="cat-badge dot-residential"></span>
+          <div>
+            <strong>주거 지구 (0.65 ~ 0.85)</strong><br />
+            <span style="font-size: 0.85em; color: #666"
+              >평균 범위. 표준적인 이용 패턴.</span
+            >
+          </div>
+        </li>
+        <li class="category-item cat-cultural">
+          <span class="cat-badge dot-cultural"></span>
+          <div>
+            <strong>문화/상업 지구 (WII > 0.85)</strong><br />
+            <span style="font-size: 0.85em; color: #666"
+              >평균보다 높음. 주말에 사람이 몰리는 핫플.</span
+            >
+          </div>
+        </li>
+      </ul>
+
+      <div class="policy-implication">
+        <strong style="color: #0072ff; display: block; margin-bottom: 5px"
+          >💡 입체적 해결책 제시</strong
+        >
+        앞서 도출한 '소외 지역(잔차)' 정보에 이 '지구 성격' 정보를 결합하면,
+        <br /><br />
+        "XX동(업무)은 출퇴근 배차 집중", "OO동(문화)은 주말 전용 노선 확충"과
+        같이 <strong>지역 특성에 최적화된 구체적이고 실효성 있는 정책</strong>을
+        제언할 수 있습니다.
+      </div>
     </div>
 
     <div class="overlay">
@@ -377,41 +485,133 @@
 
       <div id="wrapper-usage">
         <div id="date-display">데이터 로딩 중...</div>
-        <input type="range" id="time-slider" min="0" max="100" value="0" step="0.05" />
+        <input
+          type="range"
+          id="time-slider"
+          min="0"
+          max="100"
+          value="0"
+          step="0.05"
+        />
         <div>
           <button id="play-pause" class="play-btn">▶ 재생</button>
         </div>
       </div>
 
       <div id="wrapper-intensity" style="display: none">
-        <p style="color: #555; margin-bottom: 15px; font-size: 0.95rem; line-height: 1.5;">
+        <p
+          style="
+            color: #555;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+          "
+        >
           특정 기간의 <b>주말/평일 이용객 비율</b>을 분석합니다.<br />
-          <span style="color: #ff0844; font-weight: bold">붉은색</span>은 주말 핫플레이스,
-          <span style="color: #4facfe; font-weight: bold">푸른색</span>은 오피스 상권입니다.
+          <span style="color: #ff0844; font-weight: bold">붉은색</span>은 주말
+          핫플레이스,
+          <span style="color: #4facfe; font-weight: bold">푸른색</span>은 오피스
+          상권입니다.
         </p>
         <div class="date-picker-container">
           <input type="date" id="intensity-start" class="date-input" />
           <span style="color: #888; font-weight: bold">~</span>
           <input type="date" id="intensity-end" class="date-input" />
         </div>
-        <button class="play-btn" onclick="analyzeIntensity()" style="background: #00c6ff">
+        <button
+          class="play-btn"
+          onclick="analyzeIntensity()"
+          style="background: #00c6ff"
+        >
           분석 실행
         </button>
       </div>
     </div>
 
+    <!-- New: Info Overlay -->
+    <div
+      class="info-overlay"
+      style="
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        width: 320px;
+        max-height: 80vh;
+        overflow-y: auto;
+        z-index: 2;
+      "
+    >
+      <h3
+        style="
+          margin-top: 0;
+          color: #007bff;
+          border-bottom: 2px solid #007bff;
+          padding-bottom: 10px;
+        "
+      >
+        🌏 동적 시각화 개요
+      </h3>
+      <p style="font-size: 0.9rem; color: #333; line-height: 1.5">
+        이 페이지는 <strong>수억 건의 버스 승하차 데이터</strong>를
+        시공간(Spatio-Temporal) 큐브 형태로 시각화합니다.
+      </p>
+
+      <div style="margin-bottom: 15px">
+        <strong style="color: #666; display: block; margin-bottom: 5px"
+          >1. 시계열 모드 (Usage Rate)</strong
+        >
+        <p style="font-size: 0.85rem; color: #555; margin: 0">
+          특정 시간대의 유동인구(승하차 합계)가 3D 막대의 높이와 색상으로
+          표현됩니다. 재생 버튼을 눌러 하루 동안의 흐름을 관찰하세요.
+        </p>
+      </div>
+
+      <div>
+        <strong style="color: #666; display: block; margin-bottom: 5px"
+          >2. 주말 집중도 (Weekend Intensity)</strong
+        >
+        <p style="font-size: 0.85rem; color: #555; margin: 0">
+          <span
+            style="
+              background: #e7f5ff;
+              padding: 2px 6px;
+              border-radius: 4px;
+              color: #007bff;
+              font-weight: bold;
+            "
+            >(주말 평균 / 평일 평균)</span
+          >
+          지수를 시각화합니다.
+          <br />
+          <br />
+          <span style="color: #dc3545">● 붉은색 (Index > 1.0)</span>: 주말에 더
+          붐비는 핫플레이스/상권
+          <br />
+          <span style="color: #007bff">● 푸른색 (Index < 1.0)</span>: 평일에만
+          붐비는 업무 지구
+          <br />
+          <br />
+          <strong>Glass Plane Effect:</strong> 평균(1.0) 높이에 있는 투명한 막을
+          기준으로, 상권과 업무지구를 입체적으로 구분할 수 있습니다.
+        </p>
+      </div>
+    </div>
     <script>
       /**
        * [000's Visualization Logic]
        */
-      
+
       // 설명창 토글 함수
       function toggleInfo() {
         const box = document.getElementById("infoBox");
         if (box.style.display === "none" || box.style.display === "") {
-            box.style.display = "block";
+          box.style.display = "block";
         } else {
-            box.style.display = "none";
+          box.style.display = "none";
         }
       }
 
@@ -423,25 +623,48 @@
           sources: {
             "carto-positron": {
               type: "raster",
-              tiles: ["https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"],
+              tiles: [
+                "https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+              ],
               tileSize: 256,
               attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
             },
           },
-          layers: [{ id: "carto-positron-layer", type: "raster", source: "carto-positron", minzoom: 0, maxzoom: 19 }],
+          layers: [
+            {
+              id: "carto-positron-layer",
+              type: "raster",
+              source: "carto-positron",
+              minzoom: 0,
+              maxzoom: 19,
+            },
+          ],
         },
-        center: [126.986, 37.555], zoom: 10.8, pitch: 55, bearing: -15, antialias: true,
+        center: [126.986, 37.555],
+        zoom: 10.8,
+        pitch: 55,
+        bearing: -15,
+        antialias: true,
       });
 
-      let timeSeriesData = {}; let dates = []; let districtStats = {};
-      let isPlaying = false; let animationFrame; let animationStep = 0.075;
-      let distIdToFeatureIdMap = {}; let currentMode = "usage";
+      let timeSeriesData = {};
+      let dates = [];
+      let districtStats = {};
+      let isPlaying = false;
+      let animationFrame;
+      let animationStep = 0.075;
+      let distIdToFeatureIdMap = {};
+      let currentMode = "usage";
 
       map.on("load", async () => {
         try {
-          const geoResponse = await fetch("{% static 'main/data/seoul_geo.json' %}");
+          const geoResponse = await fetch(
+            "{% static 'main/data/seoul_geo.json' %}"
+          );
           const geoData = await geoResponse.json();
-          const analysisResponse = await fetch("{% static 'main/data/analysis_result.json' %}");
+          const analysisResponse = await fetch(
+            "{% static 'main/data/analysis_result.json' %}"
+          );
           const analysisData = await analysisResponse.json();
 
           timeSeriesData = analysisData.district_time_series || {};
@@ -450,17 +673,27 @@
           if (analysisData.all_districts) {
             analysisData.all_districts.forEach((d) => {
               if (d.district_id) {
-                districtStats[d.district_id] = { name: d.name, index: d.weekend_intensity_index };
+                districtStats[d.district_id] = {
+                  name: d.name,
+                  index: d.weekend_intensity_index,
+                };
               }
             });
           }
 
-          if (dates.length === 0) { document.getElementById("date-display").innerText = "데이터 없음"; return; }
+          if (dates.length === 0) {
+            document.getElementById("date-display").innerText = "데이터 없음";
+            return;
+          }
 
           const fmtDate = (s) => s.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3");
           if (dates.length > 0) {
-            document.getElementById("intensity-start").value = fmtDate(dates[0]);
-            document.getElementById("intensity-end").value = fmtDate(dates[dates.length - 1]);
+            document.getElementById("intensity-start").value = fmtDate(
+              dates[0]
+            );
+            document.getElementById("intensity-end").value = fmtDate(
+              dates[dates.length - 1]
+            );
           }
 
           geoData.features.forEach((f) => {
@@ -471,35 +704,86 @@
           });
 
           const slider = document.getElementById("time-slider");
-          slider.max = dates.length - 1; slider.value = 0; slider.step = 0.05;
+          slider.max = dates.length - 1;
+          slider.value = 0;
+          slider.step = 0.05;
 
-          map.addSource("districts", { type: "geojson", data: geoData, promoteId: "adm_cd" });
-
-          map.addLayer({ id: "districts-base", type: "fill", source: "districts", paint: { "fill-color": "#fff", "fill-opacity": 0.01 } });
-          map.addLayer({ id: "districts-outline", type: "line", source: "districts", paint: { "line-color": "#333", "line-width": 1.5, "line-dasharray": [2, 3], "line-opacity": 0 } });
+          map.addSource("districts", {
+            type: "geojson",
+            data: geoData,
+            promoteId: "adm_cd",
+          });
 
           map.addLayer({
-            id: "districts-extrusion", type: "fill-extrusion", source: "districts",
+            id: "districts-base",
+            type: "fill",
+            source: "districts",
+            paint: { "fill-color": "#fff", "fill-opacity": 0.01 },
+          });
+          map.addLayer({
+            id: "districts-outline",
+            type: "line",
+            source: "districts",
+            paint: {
+              "line-color": "#333",
+              "line-width": 1.5,
+              "line-dasharray": [2, 3],
+              "line-opacity": 0,
+            },
+          });
+
+          map.addLayer({
+            id: "districts-extrusion",
+            type: "fill-extrusion",
+            source: "districts",
             paint: {
               "fill-extrusion-color": [
-                "interpolate", ["linear"], ["coalesce", ["feature-state", "usage"], 0],
-                0, "rgba(255, 255, 255, 0)",
-                100, "#00c6ff", 5000, "#00f260", 15000, "#ffb144", 30000, "#ff0844", 80000, "#7303c0",
+                "interpolate",
+                ["linear"],
+                ["coalesce", ["feature-state", "usage"], 0],
+                0,
+                "rgba(255, 255, 255, 0)",
+                100,
+                "#00c6ff",
+                5000,
+                "#00f260",
+                15000,
+                "#ffb144",
+                30000,
+                "#ff0844",
+                80000,
+                "#7303c0",
               ],
-              "fill-extrusion-height": ["*", ["coalesce", ["feature-state", "usage"], 0], 0.3],
-              "fill-extrusion-base": 0, "fill-extrusion-opacity": 0.85,
+              "fill-extrusion-height": [
+                "*",
+                ["coalesce", ["feature-state", "usage"], 0],
+                0.3,
+              ],
+              "fill-extrusion-base": 0,
+              "fill-extrusion-opacity": 0.85,
               "fill-extrusion-height-transition": { duration: 500, delay: 0 },
               "fill-extrusion-color-transition": { duration: 500, delay: 0 },
             },
           });
 
           map.addLayer({
-            id: "districts-reference", type: "fill-extrusion", source: "districts",
-            paint: { "fill-extrusion-color": "#d9eaff", "fill-extrusion-height": 6000, "fill-extrusion-base": 5950, "fill-extrusion-opacity": 0.45 },
+            id: "districts-reference",
+            type: "fill-extrusion",
+            source: "districts",
+            paint: {
+              "fill-extrusion-color": "#d9eaff",
+              "fill-extrusion-height": 6000,
+              "fill-extrusion-base": 5950,
+              "fill-extrusion-opacity": 0.45,
+            },
             layout: { visibility: "none" },
           });
 
-          const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 20 });
+          const popup = new maplibregl.Popup({
+            closeButton: false,
+            closeOnClick: false,
+            offset: 20,
+          });
           map.on("mousemove", "districts-extrusion", (e) => {
             if (e.features.length > 0) {
               map.getCanvas().style.cursor = "pointer";
@@ -509,7 +793,9 @@
                 const dbId = rawId.substring(0, 8);
                 const stats = districtStats[dbId];
                 if (stats) {
-                  const indexVal = stats.index ? parseFloat(stats.index).toFixed(2) : "N/A";
+                  const indexVal = stats.index
+                    ? parseFloat(stats.index).toFixed(2)
+                    : "N/A";
                   const html = `<div style="text-align: center;">
                         <h4 style="margin: 0 0 8px 0; font-size: 1.1em; border-bottom: 1px solid #eee; padding-bottom:5px;">${stats.name}</h4>
                         <div style="font-size: 0.9em; display:flex; justify-content:space-between; gap:10px;">
@@ -521,39 +807,54 @@
               }
             }
           });
-          map.on("mouseleave", "districts-extrusion", () => { map.getCanvas().style.cursor = ""; popup.remove(); });
+          map.on("mouseleave", "districts-extrusion", () => {
+            map.getCanvas().style.cursor = "";
+            popup.remove();
+          });
 
           updateMap(0);
           setupEventListeners(slider);
           switchMode("usage");
-        } catch (err) { console.error("Critical Error:", err); document.getElementById("date-display").innerText = "오류 발생"; }
+        } catch (err) {
+          console.error("Critical Error:", err);
+          document.getElementById("date-display").innerText = "오류 발생";
+        }
       });
 
-      function lerp(start, end, t) { return start * (1 - t) + end * t; }
+      function lerp(start, end, t) {
+        return start * (1 - t) + end * t;
+      }
 
       function updateMap(floatIndex) {
         if (currentMode !== "usage") return;
         const lowerIndex = Math.floor(floatIndex);
         const upperIndex = Math.min(lowerIndex + 1, dates.length - 1);
         const t = floatIndex - lowerIndex;
-        document.getElementById("date-display").innerText = dates[Math.round(floatIndex)];
+        document.getElementById("date-display").innerText =
+          dates[Math.round(floatIndex)];
         const lowerData = timeSeriesData[dates[lowerIndex]] || {};
         const upperData = timeSeriesData[dates[upperIndex]] || {};
         for (const [dbId, featureId] of Object.entries(distIdToFeatureIdMap)) {
           const val1 = lowerData[dbId] || 0;
           const val2 = upperData[dbId] || 0;
           const interpolatedUsage = lerp(val1, val2, t);
-          map.setFeatureState({ source: "districts", id: featureId }, { usage: interpolatedUsage });
+          map.setFeatureState(
+            { source: "districts", id: featureId },
+            { usage: interpolatedUsage }
+          );
         }
       }
 
       function setupEventListeners(slider) {
-        slider.addEventListener("input", (e) => { if (currentMode === "usage") updateMap(parseFloat(e.target.value)); });
+        slider.addEventListener("input", (e) => {
+          if (currentMode === "usage") updateMap(parseFloat(e.target.value));
+        });
         const playBtn = document.getElementById("play-pause");
         playBtn.addEventListener("click", () => {
           isPlaying = !isPlaying;
           playBtn.innerText = isPlaying ? "⏸ 일시정지" : "▶ 재생";
-          if (isPlaying) animate(slider); else cancelAnimationFrame(animationFrame);
+          if (isPlaying) animate(slider);
+          else cancelAnimationFrame(animationFrame);
         });
       }
 
@@ -563,35 +864,74 @@
         if (currentVal >= dates.length - 1) currentVal = 0;
         let nextVal = currentVal + animationStep;
         if (nextVal > dates.length - 1) nextVal = dates.length - 1;
-        slider.value = nextVal; updateMap(nextVal);
+        slider.value = nextVal;
+        updateMap(nextVal);
         animationFrame = requestAnimationFrame(() => animate(slider));
       }
 
       window.switchMode = function (mode) {
         currentMode = mode;
-        document.getElementById("btn-mode-usage").className = mode === "usage" ? "control-btn active" : "control-btn";
-        document.getElementById("btn-mode-intensity").className = mode === "intensity" ? "control-btn active" : "control-btn";
-        document.getElementById("wrapper-usage").style.display = mode === "usage" ? "block" : "none";
-        document.getElementById("wrapper-intensity").style.display = mode === "intensity" ? "block" : "none";
-        document.getElementById("speed-controls").style.visibility = mode === "usage" ? "visible" : "hidden";
+        document.getElementById("btn-mode-usage").className =
+          mode === "usage" ? "control-btn active" : "control-btn";
+        document.getElementById("btn-mode-intensity").className =
+          mode === "intensity" ? "control-btn active" : "control-btn";
+        document.getElementById("wrapper-usage").style.display =
+          mode === "usage" ? "block" : "none";
+        document.getElementById("wrapper-intensity").style.display =
+          mode === "intensity" ? "block" : "none";
+        document.getElementById("speed-controls").style.visibility =
+          mode === "usage" ? "visible" : "hidden";
 
         if (mode === "usage") {
           map.setLayoutProperty("districts-reference", "visibility", "none");
-          map.setPaintProperty("districts-extrusion", "fill-extrusion-height", ["*", ["coalesce", ["feature-state", "usage"], 0], 0.3]);
+          map.setPaintProperty("districts-extrusion", "fill-extrusion-height", [
+            "*",
+            ["coalesce", ["feature-state", "usage"], 0],
+            0.3,
+          ]);
           map.setPaintProperty("districts-extrusion", "fill-extrusion-color", [
-            "interpolate", ["linear"], ["coalesce", ["feature-state", "usage"], 0],
-            0, "rgba(255,255,255,0)", 100, "#00c6ff", 5000, "#00f260", 15000, "#ffb144", 30000, "#ff0844", 80000, "#7303c0",
+            "interpolate",
+            ["linear"],
+            ["coalesce", ["feature-state", "usage"], 0],
+            0,
+            "rgba(255,255,255,0)",
+            100,
+            "#00c6ff",
+            5000,
+            "#00f260",
+            15000,
+            "#ffb144",
+            30000,
+            "#ff0844",
+            80000,
+            "#7303c0",
           ]);
           map.setPaintProperty("districts-outline", "line-opacity", 0);
-          const slider = document.getElementById("time-slider"); updateMap(parseFloat(slider.value));
+          const slider = document.getElementById("time-slider");
+          updateMap(parseFloat(slider.value));
         } else {
-          isPlaying = false; document.getElementById("play-pause").innerText = "▶ 재생"; cancelAnimationFrame(animationFrame);
+          isPlaying = false;
+          document.getElementById("play-pause").innerText = "▶ 재생";
+          cancelAnimationFrame(animationFrame);
           map.setLayoutProperty("districts-reference", "visibility", "visible");
           map.setPaintProperty("districts-outline", "line-opacity", 0.4);
-          map.setPaintProperty("districts-extrusion", "fill-extrusion-height", ["*", ["coalesce", ["feature-state", "intensity"], 0], 6000]);
+          map.setPaintProperty("districts-extrusion", "fill-extrusion-height", [
+            "*",
+            ["coalesce", ["feature-state", "intensity"], 0],
+            6000,
+          ]);
           map.setPaintProperty("districts-extrusion", "fill-extrusion-color", [
-            "interpolate", ["linear"], ["coalesce", ["feature-state", "intensity"], 1],
-            0.6, "#4facfe", 0.9, "#fdfbfb", 1.3, "#ff0844", 2.0, "#7303c0",
+            "interpolate",
+            ["linear"],
+            ["coalesce", ["feature-state", "intensity"], 1],
+            0.6,
+            "#4facfe",
+            0.9,
+            "#fdfbfb",
+            1.3,
+            "#ff0844",
+            2.0,
+            "#7303c0",
           ]);
         }
       };
@@ -607,37 +947,77 @@
 
       window.analyzeIntensity = function () {
         const btn = document.querySelector("#wrapper-intensity button");
-        const originalText = btn.innerText; btn.innerText = "분석 중... ⏳"; btn.disabled = true;
+        const originalText = btn.innerText;
+        btn.innerText = "분석 중... ⏳";
+        btn.disabled = true;
         setTimeout(() => {
-          if (!dates.length) { alert("데이터가 로드되지 않았습니다."); btn.innerText = originalText; btn.disabled = false; return; }
+          if (!dates.length) {
+            alert("데이터가 로드되지 않았습니다.");
+            btn.innerText = originalText;
+            btn.disabled = false;
+            return;
+          }
           const sDateStr = document.getElementById("intensity-start").value;
           const eDateStr = document.getElementById("intensity-end").value;
-          let sums = {}; let matchCount = 0;
+          let sums = {};
+          let matchCount = 0;
 
           dates.forEach((d) => {
             if (d >= sDateStr && d <= eDateStr) {
               matchCount++;
-              const pts = d.split("-"); const year = parseInt(pts[0]); const month = parseInt(pts[1]) - 1; const day = parseInt(pts[2]);
-              const dt = new Date(year, month, day); const isWe = dt.getDay() === 0 || dt.getDay() === 6;
+              const pts = d.split("-");
+              const year = parseInt(pts[0]);
+              const month = parseInt(pts[1]) - 1;
+              const day = parseInt(pts[2]);
+              const dt = new Date(year, month, day);
+              const isWe = dt.getDay() === 0 || dt.getDay() === 6;
               const dayData = timeSeriesData[d] || {};
               if (Object.keys(dayData).length === 0) return;
               for (const [dbId, val] of Object.entries(dayData)) {
-                if (!sums[dbId]) sums[dbId] = { wdS: 0, wdC: 0, weS: 0, weC: 0 };
-                if (isWe) { sums[dbId].weS += val; sums[dbId].weC++; } else { sums[dbId].wdS += val; sums[dbId].wdC++; }
+                if (!sums[dbId])
+                  sums[dbId] = { wdS: 0, wdC: 0, weS: 0, weC: 0 };
+                if (isWe) {
+                  sums[dbId].weS += val;
+                  sums[dbId].weC++;
+                } else {
+                  sums[dbId].wdS += val;
+                  sums[dbId].wdC++;
+                }
               }
             }
           });
 
-          if (matchCount === 0) { alert("선택한 기간에 데이터가 없습니다."); btn.innerText = originalText; btn.disabled = false; return; }
-
-          let maxInt = 0; let updateCount = 0;
-          for (const [dbId, featureId] of Object.entries(distIdToFeatureIdMap)) {
-            const s = sums[dbId]; let intensity = 0;
-            if (s && s.wdC > 0 && s.wdS > 0) { const avgWd = s.wdS / s.wdC; const avgWe = s.weC > 0 ? s.weS / s.weC : 0; intensity = avgWe / avgWd; }
-            if (intensity > maxInt) maxInt = intensity; if (intensity > 0) updateCount++;
-            map.setFeatureState({ source: "districts", id: featureId }, { intensity: intensity });
+          if (matchCount === 0) {
+            alert("선택한 기간에 데이터가 없습니다.");
+            btn.innerText = originalText;
+            btn.disabled = false;
+            return;
           }
-          btn.innerText = "분석 완료! ✅"; setTimeout(() => { btn.innerText = originalText; btn.disabled = false; }, 2000);
+
+          let maxInt = 0;
+          let updateCount = 0;
+          for (const [dbId, featureId] of Object.entries(
+            distIdToFeatureIdMap
+          )) {
+            const s = sums[dbId];
+            let intensity = 0;
+            if (s && s.wdC > 0 && s.wdS > 0) {
+              const avgWd = s.wdS / s.wdC;
+              const avgWe = s.weC > 0 ? s.weS / s.weC : 0;
+              intensity = avgWe / avgWd;
+            }
+            if (intensity > maxInt) maxInt = intensity;
+            if (intensity > 0) updateCount++;
+            map.setFeatureState(
+              { source: "districts", id: featureId },
+              { intensity: intensity }
+            );
+          }
+          btn.innerText = "분석 완료! ✅";
+          setTimeout(() => {
+            btn.innerText = originalText;
+            btn.disabled = false;
+          }, 2000);
         }, 100);
       };
     </script>

@@ -3,113 +3,686 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <title>서울시 행정동별 버스 인프라 탐색기</title>
+    <title>서울버스맵 - SEOUL BUS MAP</title>
     <link rel="stylesheet" href="{% static 'main/css/style.css' %}" />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Noto Sans KR", sans-serif;
+      }
+      .step-section:hover {
+        transform: translateY(-5px);
+      }
+    </style>
   </head>
-  <body>
-    <div class="container">
-      <img
-        src="{% static 'main/images/seoulbusmaplogo.png' %}"
-        alt="서울시 행정동별 버스 인프라 탐색기 로고"
-        class="logo-image"
-      />
-      <p class="description">데이터를 조회할 행정동을 선택하십시오.</p>
-
-      <div class="selector-form">
-        <form id="hjd-form">
-          <label for="hjd_code">행정동 선택:</label>
-          <select name="hjd_code" id="hjd_code" onchange="navigateToHjd()">
-            <option value="">--- 행정동을 선택하세요 ---</option>
-            {% for hjd in hjd_list %}
-            <option value="{{ hjd.district_id }}">{{ hjd.name }}</option>
-            {% endfor %}
-          </select>
-        </form>
-      </div>
-
-      <div class="update-status">
-        <h2>데이터 업데이트 현황</h2>
-        <p>
-          <strong>행정동 데이터 최종 업데이트:</strong>
-          {% if last_hjd_update_time %} {{ last_hjd_update_time }} {% else %}
-          업데이트 기록 없음 {% endif %}
-        </p>
-        <p>
-          <strong>정류장 데이터 최종 업데이트:</strong>
-          {% if last_busstop_update_time %} {{ last_busstop_update_time }} {% else %} 업데이트 기록 없음 {% endif %}
-        </p>
-        <p>
-          <strong>승하차 데이터 최종 업데이트:</strong>
-          {% if last_busdata_update_time %} {{ last_busdata_update_time }} {% else %} 업데이트 기록 없음 {% endif %}
-        </p>
-      </div>
-
-      <div style="
-          display: flex; 
-          justify-content: center; 
-          align-items: center; 
-          gap: 15px; 
-          margin-top: 40px; 
-          flex-wrap: wrap;
-      ">
-        
-        <a
-          href="{% url '000_visualization' %}"
-          class="btn-000"
+  <body style="padding: 0px">
+    <!-- Hero Section -->
+    <div
+      class="hero-section"
+      style="
+        text-align: center;
+        padding: 50px 20px 80px;
+        background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+        margin-bottom: 60px;
+        border-bottom: 1px solid #e1e4e8;
+      "
+    >
+      <div style="max-width: 800px; margin: 0 auto">
+        <img
+          src="{% static 'main/images/seoulbusmaplogo.png' %}"
+          alt="Seoul Bus Map Logo"
+          style="max-width: 520px; width: 100%; height: auto;"
+        />
+        <div
           style="
-            background-color: #fd7e14; /* 주황색 */
-            color: white;
-            padding: 12px 24px;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
+            margin-top: 10px;
+            font-size: 1rem;
+            color: #666;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.8;
+            font-weight: 300;
           "
-          onmouseover="this.style.transform='scale(1.05)'"
-          onmouseout="this.style.transform='scale(1)'"
-          >📈 수요와 공급 시각화 보고서 보기</a
-        >
+        >서울시 교통 소외 지역을 조명하는 공익 데이터 수집 ∙ 분석 ∙ 시각화 서비스
+        </div>
 
-        <a
-          href="{% url 'analysis_report' %}"
-          class="btn-analysis"
+        <!-- Navigation Tabs -->
+        <div
           style="
-            background-color: #28a745; /* 초록색 */
-            color: white;
-            padding: 12px 24px;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 40px;
           "
-          onmouseover="this.style.transform='scale(1.05)'"
-          onmouseout="this.style.transform='scale(1)'"
-          >📊 데이터 분석 보고서 보기</a
         >
-
-        <a
-          href="{% url '000' %}"
-          class="btn-000"
-          style="
-            background-color: #007bff; /* 파란색 */
-            color: white;
-            padding: 12px 24px;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-          "
-          onmouseover="this.style.transform='scale(1.05)'"
-          onmouseout="this.style.transform='scale(1)'"
-          >🌏 대중교통 이용량 시계열 시각화 보고서 보기</a
-        >
+          <a
+            href="#step1"
+            style="
+              padding: 12px 24px;
+              background: white;
+              border: 1px solid #ddd;
+              border-radius: 30px;
+              text-decoration: none;
+              color: #555;
+              font-weight: 500;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+              transition: all 0.2s;
+            "
+            onmouseover="this.style.transform='translateY(-2px)'; this.style.color='#007bff'; this.style.borderColor='#007bff'"
+            onmouseout="this.style.transform='translateY(0)'; this.style.color='#555'; this.style.borderColor='#ddd'"
+          >
+            Step 1. 수집
+          </a>
+          <a
+            href="#step2"
+            style="
+              padding: 12px 24px;
+              background: white;
+              border: 1px solid #ddd;
+              border-radius: 30px;
+              text-decoration: none;
+              color: #555;
+              font-weight: 500;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+              transition: all 0.2s;
+            "
+            onmouseover="this.style.transform='translateY(-2px)'; this.style.color='#28a745'; this.style.borderColor='#28a745'"
+            onmouseout="this.style.transform='translateY(0)'; this.style.color='#555'; this.style.borderColor='#ddd'"
+          >
+            Step 2. 분석
+          </a>
+          <a
+            href="#step3"
+            style="
+              padding: 12px 24px;
+              background: white;
+              border: 1px solid #ddd;
+              border-radius: 30px;
+              text-decoration: none;
+              color: #555;
+              font-weight: 500;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+              transition: all 0.2s;
+            "
+            onmouseover="this.style.transform='translateY(-2px)'; this.style.color='#dc3545'; this.style.borderColor='#dc3545'"
+            onmouseout="this.style.transform='translateY(0)'; this.style.color='#555'; this.style.borderColor='#ddd'"
+          >
+            Step 3. 시각화
+          </a>
+        </div>
       </div>
-
-      <div style="margin-bottom: 50px;"></div>
     </div>
+
+    <!-- Main Pipeline Container -->
+    <div
+      class="pipeline-container"
+      style="
+        display: flex;
+        flex-direction: column;
+        gap: 60px;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding-bottom: 80px;
+      "
+    >
+      <!-- Step 1: Collection -->
+      <section
+        id="step1"
+        class="step-section"
+        style="
+          background: white;
+          padding: 40px;
+          border-radius: 20px;
+          box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+          border-left: 8px solid #007bff;
+          transition: transform 0.3s;
+        "
+      >
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+          "
+        >
+          <h2 style="margin: 0; color: #007bff; font-size: 1.7rem">
+            Step 1. 데이터 수집
+          </h2>
+          <span
+            style="
+              background: #e7f5ff;
+              color: #007bff;
+              padding: 6px 12px;
+              border-radius: 20px;
+              font-size: 0.85rem;
+              font-weight: bold;
+            "
+            >DATA ARCHIVING</span
+          >
+        </div>
+        <div style="color: #444; line-height: 1.7; font-size: 1.05rem">
+          <p>
+            <strong>서울 열린데이터광장 오픈 API</strong>와
+            <strong>카카오맵 지도 API</strong>를 활용하여 서울시 전역의
+            <strong>행정동별 인구, 정류장 위치, 실시간 승하차 인원</strong>을
+            수집했습니다.
+          </p>
+          <p style="margin-top: 10px; color: #666; font-size: 0.95rem">
+            💡 <strong>System Architecture:</strong> 방대한 데이터를 효율적으로
+            처리하기 위해 최신 데이터를 담는 <strong>Hot Model</strong>과 과거
+            데이터가 축적되는 <strong>Cold Model</strong>로 DB를 이원화하여 서버
+            부하를 최적화했습니다.
+          </p>
+        </div>
+
+        <div
+          class="selector-wrapper"
+          style="
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+          "
+        >
+          <div style="margin-bottom: 12px; font-weight: bold; color: #333">
+            🔍 원본 수집 데이터 조회
+          </div>
+          <form
+            id="hjd-form"
+            style="display: flex; gap: 10px; align-items: center"
+          >
+            <label for="hjd_code" style="color: #666; font-size: 0.95rem"
+              >행정동 선택:</label
+            >
+            <select
+              name="hjd_code"
+              id="hjd_code"
+              onchange="navigateToHjd()"
+              style="
+                flex-grow: 1;
+                padding: 12px;
+                border-radius: 8px;
+                border: 1px solid #ced4da;
+                font-size: 1rem;
+                cursor: pointer;
+              "
+            >
+              <option value="">
+                --- 지역을 선택하여 수집된 데이터를 확인하세요 ---
+              </option>
+              {% for hjd in hjd_list %}
+              <option value="{{ hjd.district_id }}">{{ hjd.name }}</option>
+              {% endfor %}
+            </select>
+          </form>
+        </div>
+      </section>
+
+      <!-- Step 2: Analysis -->
+      <section
+        id="step2"
+        class="step-section"
+        style="
+          background: white;
+          padding: 40px;
+          border-radius: 20px;
+          box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+          border-left: 8px solid #28a745;
+          transition: transform 0.3s;
+        "
+      >
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+          "
+        >
+          <h2 style="margin: 0; color: #28a745; font-size: 1.7rem">
+            Step 2. 데이터 분석
+          </h2>
+          <span
+            style="
+              background: #e6fcf5;
+              color: #28a745;
+              padding: 6px 12px;
+              border-radius: 20px;
+              font-size: 0.85rem;
+              font-weight: bold;
+            "
+            >STATISTICAL ANALYSIS</span
+          >
+        </div>
+        <p style="color: #444; line-height: 1.7; font-size: 1.05rem">
+          <p style="line-height: 1.7">
+            정류장이 많고 적음 뿐만 아니라 <strong>'적정한가?'</strong>를
+            판단하기 위해 통계적 접근을 시도했습니다. 인구(수요)가 많으면
+            정류장(공급)도 많아야 한다는 가설을
+            <strong>피어슨 상관계수</strong>로 입증했습니다.
+          </p>
+          <p style="margin-top: 15px;line-height: 1.7">
+            나아가 <strong>최소제곱법을 이용한 선형 회귀분석</strong>을 통해
+            서울시 평균 추세선을 도출했습니다. 이
+            기준선보다 현저히 아래에 위치하여 <strong>큰 음의 잔차</strong>를
+            보이는 곳이 바로 구조적으로 배제된 <strong>교통 소외 지역</strong>입니다.
+          </p>
+          <p>또, 서울시 전역에서 평일/주말 간 버스 이용률의 평균적인 격차에서 착안하여, <strong>주말 집중도 지수(WII)</strong>를 고안하여 각 지역을
+            <strong>업무 지구, 주거 지구, 문화/상업 지구</strong>로
+            분류했습니다.
+            </p>  
+          <p style="margin-top: 10px; color: #666; font-size: 0.95rem">
+            💡 분석과 시각화에 사용되는 데이터들은 수집 단계에서 외부 출처에서 데이터를 받은 직후 <strong>스케줄러에 의해 자동 실행되며</strong>, 처리 시간 최적화를 위해 <strong>.JSON 형식으로 미리 베이킹됩니다.</strong></p>
+        </p>
+          <div style="margin-top: 30px">
+          <a
+            href="{% url 'analysis_report' %}"
+            class="btn-analysis"
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 10px;
+              background-color: #28a745;
+              color: white;
+              padding: 16px 30px;
+              text-decoration: none;
+              border-radius: 10px;
+              font-weight: bold;
+              font-size: 1.05rem;
+              box-shadow: 0 6px 15px rgba(40, 167, 69, 0.3);
+              transition: all 0.2s;
+            "
+          >
+            <span>📊 분석 보고서 및 소외 지역 확인하기</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- Step 3: Visualization -->
+      <section
+        id="step3"
+        class="step-section"
+        style="
+          background: white;
+          padding: 40px;
+          border-radius: 20px;
+          box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+          border-left: 8px solid #dc3545;
+          transition: transform 0.3s;
+        "
+      >
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+          "
+        >
+          <h2 style="margin: 0; color: #dc3545; font-size: 1.7rem">
+            Step 3. 시각화
+          </h2>
+          <span
+            style="
+              background: #fff5f5;
+              color: #dc3545;
+              padding: 6px 12px;
+              border-radius: 20px;
+              font-size: 0.85rem;
+              font-weight: bold;
+            "
+            >DATA VISUALIZATION</span
+          >
+        </div>
+        <div style="color: #444; line-height: 1.7; font-size: 1.05rem">
+          <p>
+            수많은 양과 복잡한 관계를 가진 데이터들을 수집과 분석 단계를 거치며 정제하여 얻은 정보를
+            결과적으로 엔드 사용자가 확인하고 이해하기 쉬워야 그 가치를 다할 수 있다고 생각했습니다.
+            
+          </p>
+          
+          <p style="margin-top: 10px">
+            <strong>Step 1의 데이터 조회</strong>에서 제공하는 <strong>정류장별 꺾은선 그래프</strong>는 개별 데이터의 시간대별 변화 추이를 미시적으로 보여줍니다. 프로젝트에서 다루는 가장 작은 단위의 데이터를 시간에 따른 추이로 편리하게 볼 수 있도록 구성했습니다.
+          </p>
+          <p>
+            <strong>Step 2에서의 분석 결과</strong>는 <strong>산점도와 회귀선 그래프</strong>로 시각화됩니다. 
+            각 행정동을 평면 위의 점으로 나타내어, 전체적인 분포와 추세선에서 벗어난 정도를 한눈에 확인할 수 있습니다. 또, 찾으려는 특정 지역의 정보를 쉽게 파악할 수 있도록 2D 지도상의 색상 차이 표현으로 데이터를 시각화했습니다.
+            </p>
+            <p>
+            주말 집중도 지수는 3D 시계열 지도를 통해 마치 도시가 살아 숨 쉬는 듯한
+            <strong>유동인구의 맥박</strong>을 시각화하고, 이를 토대로
+            "출퇴근 배차 집중", "주말 노선 확충"과 같은
+            <strong>지역 맞춤형 정책 제언</strong>을 도출하는 데에 있어 출발점으로 응용될 수 있습니다.
+          </p>
+
+        </div>
+
+        <div
+          class="viz-cards"
+          style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 30px;
+            margin-top: 35px;
+          "
+        >
+          <!-- 000 Card -->
+          <a
+            href="{% url '000_visualization' %}"
+            style="text-decoration: none; color: inherit"
+          >
+            <div
+              class="card"
+              style="
+                background: #fff;
+                border: 1px solid #efefef;
+                padding: 30px;
+                border-radius: 16px;
+                height: 100%;
+                transition: all 0.3s ease;
+                cursor: pointer;
+                display: flex;
+                flex-direction: column;
+                position: relative;
+                overflow: hidden;
+              "
+              onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 20px 40px rgba(0,0,0,0.1)'"
+              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'"
+            >
+              <div
+                style="
+                  position: absolute;
+                  top: 0;
+                  right: 0;
+                  width: 80px;
+                  height: 80px;
+                  background: #dc3545;
+                  opacity: 0.05;
+                  border-bottom-left-radius: 80px;
+                "
+              ></div>
+              <div style="font-size: 3rem; margin-bottom: 20px">📉</div>
+              <h3 style="margin: 0 0 12px 0; font-size: 1.4rem; color: #333">
+                공급/수요 균형 분석 (2D)
+              </h3>
+              
+              <div style="margin-bottom: 15px; background: #fff5f5; padding: 12px; border-radius: 8px; border-left: 4px solid #dc3545;">
+                <strong style="color: #dc3545; display: block; margin-bottom: 5px; font-size: 0.9rem;">Why 2D Map?</strong>
+                <p style="margin: 0; font-size: 0.9rem; color: #555; line-height: 1.5;">
+                  "공급이 부족한가?"를 판단하려면 <strong>명확한 구분</strong>이 필요합니다.  
+                  잔차에 따라 <strong>색상</strong>을 달리하여 
+                  소외 지역을 직관적으로 식별하도록 설계했습니다.
+                </p>
+              </div>
+
+              <p
+                style="
+                  font-size: 1rem;
+                  color: #666;
+                  flex-grow: 1;
+                  line-height: 1.6;
+                "
+              >
+                평균 추세선을 중심으로 그린 그래프와 함께, 회귀분석 <strong>잔차</strong>를 지도에 시각화하여,
+                표준보다 공급이 부족한 <strong>교통 소외 지역</strong>을 명확히 식별합니다.
+              </p>
+              <div
+                style="
+                  color: #dc3545;
+                  font-weight: 700;
+                  margin-top: 20px;
+                  font-size: 1rem;
+                "
+              >
+                그래프와 2D 지도 보기 &rarr;
+              </div>
+            </div>
+          </a>
+
+          <!-- 000 Card -->
+          <a
+            href="{% url '000' %}"
+            style="text-decoration: none; color: inherit"
+          >
+            <div
+              class="card"
+              style="
+                background: #fff;
+                border: 1px solid #efefef;
+                padding: 30px;
+                border-radius: 16px;
+                height: 100%;
+                transition: all 0.3s ease;
+                cursor: pointer;
+                display: flex;
+                flex-direction: column;
+                position: relative;
+                overflow: hidden;
+              "
+              onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 20px 40px rgba(0,0,0,0.1)'"
+              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'"
+            >
+              <div
+                style="
+                  position: absolute;
+                  top: 0;
+                  right: 0;
+                  width: 80px;
+                  height: 80px;
+                  background: #007bff;
+                  opacity: 0.05;
+                  border-bottom-left-radius: 80px;
+                "
+              ></div>
+              <div style="font-size: 3rem; margin-bottom: 20px">🌏</div>
+              <h3 style="margin: 0 0 12px 0; font-size: 1.4rem; color: #333">
+                3D 시계열 & 도시 유형
+              </h3>
+              
+              <div style="margin-bottom: 15px; background: #e7f5ff; padding: 12px; border-radius: 8px; border-left: 4px solid #007bff;">
+                <strong style="color: #007bff; display: block; margin-bottom: 5px; font-size: 0.9rem;">Why 3D Map?</strong>
+                <p style="margin: 0; font-size: 0.9rem; color: #555; line-height: 1.5;">
+                  도시는 평면적이지 않습니다. 시간대별 활동의 <strong>양(Volume)</strong>과 
+                  <strong>흐름(Pulse)</strong>을 <strong>높이</strong>로 표현하여, 
+                  단순 위치를 넘어 "언제, 얼마나 숨 쉬는지" 입체적으로 조망합니다.
+                </p>
+              </div>
+
+              <p
+                style="
+                  font-size: 1rem;
+                  color: #666;
+                  flex-grow: 1;
+                  line-height: 1.6;
+                "
+              >
+                시간 흐름에 따른 <strong>유동인구의 변화(Pulse)</strong>와
+                <strong>주말 집중도(WII)</strong>를 3D 지도로 탐색하여 도시의
+                숨겨진 맥락을 발견합니다.
+              </p>
+              <div
+                style="
+                  color: #007bff;
+                  font-weight: 700;
+                  margin-top: 20px;
+                  font-size: 1rem;
+                "
+              >
+                3D 인터랙티브 지도 보기 &rarr;
+              </div>
+            </div>
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <!-- System Status -->
+    <div
+      class="system-status"
+      style="
+        margin: 60px auto 60px;
+        max-width: 1000px;
+        background: #2b3035;
+        color: #f8f9fa;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+      "
+    >
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1px solid #495057;
+          padding-bottom: 20px;
+          margin-bottom: 30px;
+        "
+      >
+        <div style="display: flex; align-items: center; gap: 10px">
+          <h3
+            style="
+              margin: 0;
+              font-size: 1.2rem;
+              letter-spacing: 1px;
+              text-transform: uppercase;
+              font-weight: 700;
+            "
+          >
+            🖥️ 데이터 최신화 현황
+          </h3>
+        </div>
+        <span
+          style="
+            font-size: 0.9rem;
+            color: #00f260;
+            background: rgba(0, 242, 96, 0.1);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+          "
+          >● 정상 가동</span
+        >
+      </div>
+      <div
+        style="
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 40px;
+          text-align: center;
+        "
+      >
+        <div style="border-right: 1px solid #495057">
+          <div
+            style="
+              color: #adb5bd;
+              font-size: 0.9rem;
+              margin-bottom: 10px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            "
+          >
+            행정동 정보
+          </div>
+          <div
+            style="
+              font-size: 1.2rem;
+              font-weight: bold;
+              font-family: 'Courier New', monospace;
+              color: #fff;
+            "
+          >
+            {% if last_hjd_update_time %} {{ last_hjd_update_time|date:"Y-m-d H:i" }} {% else %} - {% endif %}
+          </div>
+        </div>
+        <div style="border-right: 1px solid #495057">
+          <div
+            style="
+              color: #adb5bd;
+              font-size: 0.9rem;
+              margin-bottom: 10px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            "
+          >
+            버스 정류장
+          </div>
+          <div
+            style="
+              font-size: 1.2rem;
+              font-weight: bold;
+              font-family: 'Courier New', monospace;
+              color: #fff;
+            "
+          >
+            {% if last_busstop_update_time %} {{ last_busstop_update_time|date:"Y-m-d H:i" }} {% else %} - {% endif %}
+          </div>
+        </div>
+        <div>
+          <div
+            style="
+              color: #adb5bd;
+              font-size: 0.9rem;
+              margin-bottom: 10px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            "
+          >
+            유동인구
+          </div>
+          <div
+            style="
+              font-size: 1.2rem;
+              font-weight: bold;
+              font-family: 'Courier New', monospace;
+              color: #fff;
+            "
+          >
+            {% if last_busdata_update_time %} {{ last_busdata_update_time|date:"Y-m-d H:i" }} {% else %} - {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer
+      style="
+        text-align: center;
+        padding: 40px 20px;
+        color: #888;
+        font-size: 0.9rem;
+        background: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+      "
+    >
+      <p style="margin-bottom: 10px">
+        <strong>Project SeoulBusMap</strong>
+      </p>
+      <p>
+        김000(20225525)<br>
+        김000 (20232782)<br>
+유000 (20230749)<br>
+이000 (20236743) 
+      </p>
+      <p>
+        데이터 출처: 서울 열린데이터광장, 카카오맵 API &nbsp;|&nbsp; 개발 스택:
+        Django, Pandas, Leaflet.js, MapLibre GL JS
+      </p>
+
+    </footer>
 
     <script>
       function navigateToHjd() {

@@ -68,7 +68,7 @@
         border-radius: 30px;
         font-weight: bold;
         font-size: 0.9rem;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         transition: all 0.2s ease;
         display: flex;
         align-items: center;
@@ -77,7 +77,7 @@
       .btn-home-fixed:hover {
         background-color: #555;
         transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
       }
 
       /* --- 설명 버튼 및 박스 --- */
@@ -95,13 +95,13 @@
         margin-left: auto;
         margin-right: auto;
         transition: background 0.2s, transform 0.1s;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       }
       .btn-explain:hover {
         background-color: #5a6268;
         transform: scale(1.02);
       }
-      
+
       .explanation-box {
         display: none;
         background-color: #fcfcfc;
@@ -113,13 +113,16 @@
         line-height: 1.7;
         color: #444;
         font-size: 0.95rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         animation: fadeIn 0.4s ease-in-out;
       }
 
       /* 거시적/미시적 분석 텍스트 스타일 */
-      .highlight-text { font-weight: bold; color: #2c3e50; }
-      
+      .highlight-text {
+        font-weight: bold;
+        color: #2c3e50;
+      }
+
       .formula-box {
         background-color: #fff;
         border: 2px solid #e9ecef;
@@ -129,7 +132,7 @@
         text-align: center;
       }
       .formula-text {
-        font-family: 'Courier New', Courier, monospace;
+        font-family: "Courier New", Courier, monospace;
         font-size: 1.2em;
         font-weight: bold;
         color: #d63384;
@@ -164,12 +167,30 @@
         margin-bottom: 8px;
         font-size: 1.05em;
       }
-      .badge-red { background: #d73027; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; }
-      .badge-green { background: #1a9850; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; }
+      .badge-red {
+        background: #d73027;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.8em;
+      }
+      .badge-green {
+        background: #1a9850;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.8em;
+      }
 
       @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       /* --- 지도 스타일 --- */
@@ -208,7 +229,9 @@
         color: white;
         font-weight: bold;
       }
-      .btn-reset:hover { background: #555; }
+      .btn-reset:hover {
+        background: #555;
+      }
 
       /* --- 범례 (Legend) --- */
       .custom-legend {
@@ -226,8 +249,14 @@
         font-size: 12px;
         pointer-events: none;
       }
-      .legend-scale { display: flex; gap: 2px; }
-      .color-box { width: 25px; height: 12px; }
+      .legend-scale {
+        display: flex;
+        gap: 2px;
+      }
+      .color-box {
+        width: 25px;
+        height: 12px;
+      }
 
       /* --- 라벨 스타일 --- */
       .district-label {
@@ -249,12 +278,17 @@
         color: #444;
         font-weight: 600;
         font-size: 10px;
-        text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+        text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff,
+          1px 1px 0 #fff;
         text-align: center;
         white-space: nowrap;
       }
 
-      .info-text { font-size: 0.9em; color: #666; margin-bottom: 15px; }
+      .info-text {
+        font-size: 0.9em;
+        color: #666;
+        margin-bottom: 15px;
+      }
 
       /* 로딩 오버레이 */
       #loading-overlay {
@@ -280,7 +314,14 @@
         animation: spin 1s linear infinite;
         margin-bottom: 15px;
       }
-      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
     </style>
   </head>
   <body>
@@ -290,11 +331,16 @@
 
     <div id="loading-overlay">
       <div class="spinner"></div>
-      <span style="font-size: 1.2em; font-weight: bold">데이터 분석 및 시각화 중...</span>
+      <span style="font-size: 1.2em; font-weight: bold"
+        >데이터 분석 및 시각화 중...</span
+      >
     </div>
 
     <div class="container">
-      <div class="visualization-header" style="text-align: center; margin-bottom: 20px">
+      <div
+        class="visualization-header"
+        style="text-align: center; margin-bottom: 20px"
+      >
         <a href="{% url 'index' %}">
           <img
             src="{% static 'main/images/seoulbusmaplogo.png' %}"
@@ -306,66 +352,204 @@
         <p class="description" style="max-width: 600px; margin: 0 auto">
           데이터 기반의 거시적(상관관계) 및 미시적(지도) 분석을 통해 소외 지역을
           시각화합니다.<br />
-          <span style="font-size: 0.85em; color: #888">* 기본적으로 최적화된 정적 데이터(JSON)를 로드하며, 날짜 지정 시 실시간 분석 API를 호출합니다.</span>
+          <span style="font-size: 0.85em; color: #888"
+            >* 기본적으로 최적화된 정적 데이터(JSON)를 로드하며, 날짜 지정 시
+            실시간 분석 API를 호출합니다.</span
+          >
         </p>
       </div>
 
-      <div class="filter-section" style="text-align: center; margin-bottom: 30px">
-        <div style="display: inline-flex; align-items: center; gap: 10px; background: #fff; padding: 10px 20px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);">
+      <div
+        class="filter-section"
+        style="text-align: center; margin-bottom: 30px"
+      >
+        <div
+          style="
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #fff;
+            padding: 10px 20px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+          "
+        >
           <span style="font-weight: bold; color: #555">📅 분석 기간 설정:</span>
-          <input type="date" id="start-date" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc" />
+          <input
+            type="date"
+            id="start-date"
+            style="padding: 5px; border-radius: 4px; border: 1px solid #ccc"
+          />
           <span>~</span>
-          <input type="date" id="end-date" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc" />
-          <button onclick="handleSearch()" class="btn-reset" style="padding: 6px 15px; border-radius: 20px; cursor: pointer; margin-left: 5px;">조회</button>
-          <button onclick="handleReset()" class="btn-reset" style="padding: 6px 15px; border-radius: 20px; cursor: pointer; background: #888;">초기화</button>
+          <input
+            type="date"
+            id="end-date"
+            style="padding: 5px; border-radius: 4px; border: 1px solid #ccc"
+          />
+          <button
+            onclick="handleSearch()"
+            class="btn-reset"
+            style="
+              padding: 6px 15px;
+              border-radius: 20px;
+              cursor: pointer;
+              margin-left: 5px;
+            "
+          >
+            조회
+          </button>
+          <button
+            onclick="handleReset()"
+            class="btn-reset"
+            style="
+              padding: 6px 15px;
+              border-radius: 20px;
+              cursor: pointer;
+              background: #888;
+            "
+          >
+            초기화
+          </button>
         </div>
       </div>
 
+      <!-- Context Section -->
+      <div
+        class="context-section"
+        style="
+          background: #fff;
+          padding: 25px;
+          border-radius: 12px;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+          margin-top: 20px;
+        "
+      >
+        <h3
+          style="
+            margin-top: 0;
+            color: #fd7e14;
+            border-bottom: 2px solid #fd7e14;
+            padding-bottom: 10px;
+            display: inline-block;
+          "
+        >
+          🔬 분석 방법론
+        </h3>
+        <p style="color: #555; line-height: 1.6">
+          <strong>"인구 1명당 적정한 버스 정류장은 몇 개인가?"</strong><br />
+          단순히 정류장 개수만으로는 교통 소외를 판단할 수 없습니다. 우리는
+          <strong>선형 회귀분석</strong>을 통해 인구 대비
+          적정 정류장 수를 예측하고, 실제 값과의 차이인
+          <strong>잔차</strong>를 계산했습니다.
+        </p>
+        <ul
+          style="
+            color: #666;
+            line-height: 1.6;
+            background: #fff9f2;
+            padding: 15px 30px;
+            border-radius: 8px;
+          "
+        >
+          <li>
+            <strong style="color: #dc3545">양의 잔차 (+):</strong> 공급 과잉
+            (예측보다 정류장이 많음)
+          </li>
+          <li>
+            <strong style="color: #007bff">음의 잔차 (-):</strong> 공급 부족
+            (예측보다 정류장이 적음, 교통 소외 가능성)
+          </li>
+        </ul>
+      </div>
+
       <div class="visualization-container">
-        
         <div class="chart-container">
           <h2>📊 거시적 분석: 인구 대비 정류장 수</h2>
           <p class="info-text">
             인구수(X)와 정류장 수(Y)의 상관관계를 보여줍니다. <br />
             <span style="color: #ff0055; font-weight: bold">붉은 회귀선</span>
-            아래에 위치한 점들은 인구 대비 정류장 공급이 부족한 지역을 의미합니다.
+            아래에 위치한 점들은 인구 대비 정류장 공급이 부족한 지역을
+            의미합니다.
           </p>
           <div style="position: relative; height: 350px; width: 100%">
             <canvas id="scatterChart"></canvas>
           </div>
 
-          <button class="btn-explain" onclick="toggleExplain('desc-chart')">📖 거시적 분석 설명 보기</button>
+          <button class="btn-explain" onclick="toggleExplain('desc-chart')">
+            📖 거시적 분석 설명 보기
+          </button>
           <div id="desc-chart" class="explanation-box">
-              <h3 style="margin-top:0; border-bottom:2px solid #ccc; padding-bottom:10px;">🚩 서울시의 표준을 정의하다</h3>
-              
-              <p>
-                  저희는 개별 정류장 단위의 관찰을 넘어, 거시적인 관점에서 <strong>서울시 버스 공급의 표준</strong>을 정의하기로 했습니다. 
-                  "인구(수요)가 많은 곳에는 당연히 정류장(공급)도 많아야 한다"는 상식적인 가설을 세우고, 
-                  이를 통계적으로 입증하기 위해 <strong>피어슨 상관계수</strong>를 도입하여 검증했습니다.
-              </p>
-              
-              <p>
-                  분석 결과, numpy 라이브러리를 활용한 정밀 연산 끝에 <strong>약 0.6의 양의 상관계수</strong>를 확인했습니다. 
-                  이는 '사람이 많으면 버스도 많다'는 상식이 대체로 통용됨을 증명하지만, 동시에 1.0에 못 미치는 수치는 
-                  여전히 수요와 공급이 엇박자를 내는 불균형 지점이 존재함을 시사합니다.
-              </p>
+            <h3
+              style="
+                margin-top: 0;
+                border-bottom: 2px solid #ccc;
+                padding-bottom: 10px;
+              "
+            >
+              🚩 서울시 버스 공급의 기준을 정의하다
+            </h3>
 
-              <div class="formula-box">
-                  <p style="margin:0; color:#555; font-size:0.9em;">서울시 평균 공급 추세선 (선형 회귀식)</p>
-                  <p class="formula-text">y = 0.0007x + 8.76</p>
-              </div>
+            <p>
+              저희는 개별 정류장 단위의 관찰을 넘어, 거시적인 관점에서
+              <strong>서울시 버스 공급의 표준</strong>을 정의하기로 했습니다.
+              "인구(수요)가 많은 곳에는 당연히 정류장(공급)도 많아야 한다"는
+              상식적인 가설을 세우고, 이를 통계적으로 입증하기 위해
+              <strong>피어슨 상관계수</strong>를 도입하여 검증했습니다.
+            </p>
 
-              <ul style="background-color:#f8f9fa; padding:15px 20px; border-radius:5px; list-style-type: none;">
-                  <li style="margin-bottom:8px;">✅ <strong>기울기 0.0006:</strong> 인구 1만 명당 약 6개의 정류장이 추가로 필요</li>
-                  <li>✅ <strong>절편 8.76:</strong> 인구가 거의 없는 지역이라도 최소한의 교통 복지를 위해 약 8.76개의 정류장은 기본적으로 갖추어져야 함</li>
-              </ul>
-
-              <p style="margin-top:15px;">
-                  이 추세선은 단순한 그래프가 아니라 인구 규모에 따라 존재해야 할 정류장의 <strong>적정 기준선</strong>입니다. 
-                  저희는 실제 관측값에서 예측값을 뺀 <strong>'잔차(Residual)'</strong>를 계산하여, 
-                  이 선보다 현저히 아래에 위치한(음의 잔차가 큰) 곳을 단순 공급 부족 지역이 아닌 
-                  <span style="background-color:rgba(255, 99, 132, 0.2); color:#d63384; font-weight:bold; padding:2px 5px; border-radius:3px;">'구조적 교통 소외 지역'</span>으로 새롭게 정의하였습니다.
+            <p>
+              과제 진행 도중의 시점에서 분석 결과, numpy 라이브러리를 활용한 정밀 연산 끝에
+              <strong>약 0.6의 양의 상관계수</strong>를 확인했습니다. 이는
+              '사람이 많으면 버스도 많다'는 상식이 대체로 통용됨을 증명하지만,
+              동시에 1.0에 못 미치는 수치는 여전히 수요와 공급이 엇박자를 내는
+              불균형 지점이 존재함을 시사합니다.
+            </p>
+            <p>
+              <strong>*실시간으로 데이터가 최신화되어 동적으로 작동하는 본 프로젝트의 특성 상 실제 표시 데이터와 차이가 있을 수 있습니다.</strong>
+            </p>
+            <div class="formula-box">
+              <p style="margin: 0; color: #555; font-size: 0.9em">
+                서울시 평균 공급 추세선 (선형 회귀식)
               </p>
+              <p class="formula-text">y = 0.0007x + 8.76</p>
+            </div>
+
+            <ul
+              style="
+                background-color: #f8f9fa;
+                padding: 15px 20px;
+                border-radius: 5px;
+                list-style-type: none;
+              "
+            >
+              <li style="margin-bottom: 8px">
+                ✅ <strong>기울기 0.0006:</strong> 인구 1만 명당 약 6개의
+                정류장이 추가로 필요
+              </li>
+              <li>
+                ✅ <strong>절편 8.76:</strong> 인구가 거의 없는 지역이라도
+                최소한의 교통 복지를 위해 약 8.76개의 정류장은 기본적으로
+                갖추어져야 함
+              </li>
+            </ul>
+
+            <p style="margin-top: 15px">
+              이 추세선은 단순한 그래프가 아니라 인구 규모에 따라 존재해야 할
+              정류장의 <strong>적정 기준선</strong>입니다. 저희는 실제
+              관측값에서 예측값을 뺀 <strong>'잔차(Residual)'</strong>를
+              계산하여, 이 선보다 현저히 아래에 위치한(음의 잔차가 큰) 곳을 단순
+              공급 부족 지역이 아닌
+              <span
+                style="
+                  background-color: rgba(255, 99, 132, 0.2);
+                  color: #d63384;
+                  font-weight: bold;
+                  padding: 2px 5px;
+                  border-radius: 3px;
+                "
+                >'구조적 교통 소외 지역'</span
+              >으로 새롭게 정의하였습니다.
+            </p>
           </div>
         </div>
 
@@ -379,8 +563,21 @@
                 ↺ 전체보기 (자치구)
               </button>
 
-              <label class="control-box" style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                <input type="checkbox" id="toggle-neighborhood" onchange="toggleNeighborhoodMode()" style="cursor: pointer" />
+              <label
+                class="control-box"
+                style="
+                  cursor: pointer;
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                "
+              >
+                <input
+                  type="checkbox"
+                  id="toggle-neighborhood"
+                  onchange="toggleNeighborhoodMode()"
+                  style="cursor: pointer"
+                />
                 <span style="user-select: none">행정동 경계 보기</span>
               </label>
             </div>
@@ -388,64 +585,131 @@
             <div class="custom-legend">
               <span>공급 부족</span>
               <div class="legend-scale">
-                <div class="color-box" style="background: #d73027" title="매우 부족 (-15 미만)"></div>
-                <div class="color-box" style="background: #fc8d59" title="부족 (-5 ~ -15)"></div>
-                <div class="color-box" style="background: #ffffbf" title="보통 (-5 ~ 5)"></div>
-                <div class="color-box" style="background: #d9ef8b" title="양호 (5 ~ 15)"></div>
-                <div class="color-box" style="background: #1a9850" title="충분 (15 이상)"></div>
+                <div
+                  class="color-box"
+                  style="background: #d73027"
+                  title="매우 부족 (-15 미만)"
+                ></div>
+                <div
+                  class="color-box"
+                  style="background: #fc8d59"
+                  title="부족 (-5 ~ -15)"
+                ></div>
+                <div
+                  class="color-box"
+                  style="background: #ffffbf"
+                  title="보통 (-5 ~ 5)"
+                ></div>
+                <div
+                  class="color-box"
+                  style="background: #d9ef8b"
+                  title="양호 (5 ~ 15)"
+                ></div>
+                <div
+                  class="color-box"
+                  style="background: #1a9850"
+                  title="충분 (15 이상)"
+                ></div>
               </div>
               <span>공급 충분</span>
             </div>
           </div>
-          
+
           <div style="margin-top: 15px; text-align: center; color: #555">
-            <span id="map-sub-title" style="font-weight: bold; font-size: 1.1em">서울시 자치구별 현황 (Overview)</span><br />
-            <span id="map-guide-text" style="font-size: 0.9em; color: #888">지도의 자치구를 클릭하면 상세 행정동 데이터를 확인할 수 있습니다.</span>
+            <span id="map-sub-title" style="font-weight: bold; font-size: 1.1em"
+              >서울시 자치구별 현황 (Overview)</span
+            ><br />
+            <span id="map-guide-text" style="font-size: 0.9em; color: #888"
+              >지도의 자치구를 클릭하면 상세 행정동 데이터를 확인할 수
+              있습니다.</span
+            >
           </div>
 
-          <button class="btn-explain" onclick="toggleExplain('desc-map')">📖 미시적 분석 설명 보기</button>
+          <button class="btn-explain" onclick="toggleExplain('desc-map')">
+            📖 미시적 분석 설명 보기
+          </button>
           <div id="desc-map" class="explanation-box">
-              <h3 style="margin-top:0; border-bottom:2px solid #ccc; padding-bottom:10px;">🔍 현상적 수치를 넘어 '상대적 박탈감'을 추적하다</h3>
-              
-              <p>
-                  단순히 정류장 개수가 적은 지역을 찾는 방식은 인구가 적어 공급 또한 적은 '자연스러운 현상'을 교통 소외로 오인하게 할 위험이 있습니다. 
-                  본 프로젝트는 이러한 분석의 한계를 극복하기 위해 미시적 관점의 <strong>잔차 분석</strong>을 도입했습니다.
-              </p>
+            <h3
+              style="
+                margin-top: 0;
+                border-bottom: 2px solid #ccc;
+                padding-bottom: 10px;
+              "
+            >
+              🔍 현상적 수치를 넘어 '상대적 박탈감'을 추적하다
+            </h3>
 
-              <div class="formula-box">
-                  <p style="margin:0; color:#555; font-size:0.9em;">잔차(Residual) 공식</p>
-                  <p class="formula-text">e = Y(실제값) - Y'(예측값)</p>
+            <p>
+              단순히 정류장 개수가 적은 지역을 찾는 방식은 인구가 적어 공급 또한
+              적은 '자연스러운 현상'을 교통 소외로 오인하게 할 위험이 있습니다.
+              본 프로젝트는 이러한 분석의 한계를 극복하기 위해 미시적 관점의
+              <strong>잔차 분석</strong>을 도입했습니다.
+            </p>
+
+            <div class="formula-box">
+              <p style="margin: 0; color: #555; font-size: 0.9em">
+                잔차 공식
+              </p>
+              <p class="formula-text">e = Y(실제값) - Y'(예측값)</p>
+            </div>
+
+            <p>
+              잔차가 음의 값을 기록한다는 것은 해당 지역의 인구적 수요를
+              고려했을 때 마땅히 존재해야 할 인프라가 구조적으로 누락되었음을
+              정량적으로 입증하는 지표가 됩니다.
+            </p>
+
+            <div class="case-container">
+              <div class="case-card case-deficit">
+                <span class="case-title"
+                  >😰 상대적 박탈감의 최정점 <br /><span
+                    style="font-size: 1.2em"
+                    >역삼1동</span
+                  >
+                  <span class="badge-red">잔차 -34.0</span></span
+                >
+                <p style="font-size: 0.9em; color: #555">
+                  절대적인 정류장 수(51개)는 많아 보이지만, 약 11만 명의 막대한
+                  유동 인구를 고려하면 <strong>적정 정류장은 약 85개</strong>가
+                  필요합니다.<br />
+                  겉으로는 편리해 보이지만, 인구 대비 공급 수준은 서울에서
+                  열악한 지역에 속한다는 것이 입증되었습니다.
+                </p>
               </div>
 
-              <p>
-                  잔차가 음의 값을 기록한다는 것은 해당 지역의 인구적 수요를 고려했을 때 마땅히 존재해야 할 인프라가 구조적으로 누락되었음을 정량적으로 입증하는 지표가 됩니다.
-              </p>
-
-              <div class="case-container">
-                  <div class="case-card case-deficit">
-                      <span class="case-title">😰 상대적 박탈감의 최정점 <br><span style="font-size:1.2em;">역삼1동</span> <span class="badge-red">잔차 -34.0</span></span>
-                      <p style="font-size:0.9em; color:#555;">
-                          절대적인 정류장 수(51개)는 많아 보이지만, 약 11만 명의 막대한 유동 인구를 고려하면 <strong>적정 정류장은 약 85개</strong>가 필요합니다.<br>
-                          겉으로는 편리해 보이지만, 인구 대비 공급 수준은 서울에서 열악한 지역에 속한다는 것이 입증되었습니다.
-                      </p>
-                  </div>
-
-                  <div class="case-card case-surplus">
-                      <span class="case-title">🚀 전략적 교통 거점 <br><span style="font-size:1.2em;">상암동</span> <span class="badge-green">잔차 +56.06</span></span>
-                      <p style="font-size:0.9em; color:#555;">
-                          소외 지역과 대조적으로 <strong>매우 높은 양의 잔차</strong>를 기록했습니다. <br>
-                          거주 인구(약 4.2만명) 대비 정류장이 96개에 달해, 모델 예측치보다 훨씬 많은 인프라가 집중된 '전략적 교통 거점'임을 보여줍니다.
-                      </p>
-                  </div>
+              <div class="case-card case-surplus">
+                <span class="case-title"
+                  >🚀 전략적 교통 거점 <br /><span style="font-size: 1.2em"
+                    >상암동</span
+                  >
+                  <span class="badge-green">잔차 +56.06</span></span
+                >
+                <p style="font-size: 0.9em; color: #555">
+                  소외 지역과 대조적으로 <strong>매우 높은 양의 잔차</strong>를
+                  기록했습니다. <br />
+                  거주 인구(약 4.2만명) 대비 정류장이 96개에 달해, 모델
+                  예측치보다 훨씬 많은 인프라가 집중된 '전략적 교통 거점'임을
+                  보여줍니다.
+                </p>
               </div>
+            </div>
 
-              <p style="background-color:#eee; padding:15px; border-radius:5px; font-weight:bold; color:#333;">
-                  이러한 미시적 분석은 단순히 민원 발생 건수에 의존하던 기존 방식에서 벗어나, 
-                  '데이터가 증명하는 최우선 공급 대상'을 선별할 수 있는 객관적 근거를 제공합니다. 
-                  발견된 소외 지역은 단순한 통계적 이상치가 아니라, 서울시 이동권 형평성을 위해 정책적 개입이 시급한 <span style="color:#d63384;">핀포인트 전략 지역</span>입니다.
-              </p>
+            <p
+              style="
+                background-color: #eee;
+                padding: 15px;
+                border-radius: 5px;
+                font-weight: bold;
+                color: #333;
+              "
+            >
+              이러한 미시적 분석은 단순히 민원 발생 건수에 의존하던 기존
+              방식에서 벗어나, '데이터가 증명하는 최우선 공급 대상'을 선별할 수
+              있는 객관적 근거를 제공합니다. 발견된 소외 지역은 단순한 통계적
+              이상치가 아니라, 서울시 이동권 형평성을 위해 정책적 개입이 시급한
+              <span style="color: #d63384">핀포인트 전략 지역</span>입니다.
+            </p>
           </div>
-
         </div>
       </div>
     </div>
@@ -461,19 +725,24 @@
       function toggleExplain(id) {
         const box = document.getElementById(id);
         if (box.style.display === "none" || box.style.display === "") {
-            box.style.display = "block";
+          box.style.display = "block";
         } else {
-            box.style.display = "none";
+          box.style.display = "none";
         }
       }
 
-      let currentLevel = 0; 
+      let currentLevel = 0;
       let isAllNeighborhoodMode = false;
       let selectedDistrict = null;
       let geojsonLayer;
       let labelLayerGroup = L.layerGroup();
       window.myChart = null;
-      let residualMap = {}, districtResidualMap = {}, usageMap = {}, districtUsageMap = {}, scatterData = [], macroResults = {};
+      let residualMap = {},
+        districtResidualMap = {},
+        usageMap = {},
+        districtUsageMap = {},
+        scatterData = [],
+        macroResults = {};
 
       document.addEventListener("DOMContentLoaded", function () {
         loadData();
@@ -510,8 +779,14 @@
       function handleSearch() {
         const start = document.getElementById("start-date").value;
         const end = document.getElementById("end-date").value;
-        if (!start || !end) { alert("시작/종료 날짜를 선택해주세요."); return; }
-        if (start > end) { alert("종료 날짜가 시작 날짜보다 빠를 수 없습니다."); return; }
+        if (!start || !end) {
+          alert("시작/종료 날짜를 선택해주세요.");
+          return;
+        }
+        if (start > end) {
+          alert("종료 날짜가 시작 날짜보다 빠를 수 없습니다.");
+          return;
+        }
         loadData(start, end);
       }
 
@@ -529,14 +804,25 @@
           slope: parseFloat(rawMacro.slope || 0),
           intercept: parseFloat(rawMacro.intercept || 0),
         };
-        residualMap = {}; districtResidualMap = {}; usageMap = {}; districtUsageMap = {}; scatterData = [];
+        residualMap = {};
+        districtResidualMap = {};
+        usageMap = {};
+        districtUsageMap = {};
+        scatterData = [];
 
-        scatterData = allDistricts.map((d) => ({ x: d.population, y: d.busstop_count, name: d.name }));
+        scatterData = allDistricts.map((d) => ({
+          x: d.population,
+          y: d.busstop_count,
+          name: d.name,
+        }));
 
         allDistricts.forEach((d) => {
           if (d.district_id) {
             residualMap[d.district_id] = d.residual;
-            usageMap[d.district_id] = { weekday: Math.round(d.avg_weekday || 0), weekend: Math.round(d.avg_weekend || 0) };
+            usageMap[d.district_id] = {
+              weekday: Math.round(d.avg_weekday || 0),
+              weekend: Math.round(d.avg_weekend || 0),
+            };
           }
         });
 
@@ -544,7 +830,8 @@
         allDistricts.forEach((d) => {
           if (d.district_id) {
             const guCode = d.district_id.substring(0, 5);
-            if (!guGroups[guCode]) guGroups[guCode] = { residuals: [], weekdays: [], weekends: [] };
+            if (!guGroups[guCode])
+              guGroups[guCode] = { residuals: [], weekdays: [], weekends: [] };
             guGroups[guCode].residuals.push(d.residual);
             guGroups[guCode].weekdays.push(d.avg_weekday || 0);
             guGroups[guCode].weekends.push(d.avg_weekend || 0);
@@ -556,7 +843,10 @@
           districtResidualMap[guCode] = rSum / grp.residuals.length;
           const wSum = grp.weekdays.reduce((a, b) => a + b, 0);
           const kSum = grp.weekends.reduce((a, b) => a + b, 0);
-          districtUsageMap[guCode] = { weekday: Math.round(wSum), weekend: Math.round(kSum) };
+          districtUsageMap[guCode] = {
+            weekday: Math.round(wSum),
+            weekend: Math.round(kSum),
+          };
         }
       }
 
@@ -570,14 +860,20 @@
       }
 
       function initMap() {
-        const map = L.map("map", { zoomControl: true, scrollWheelZoom: false }).setView([37.5665, 126.978], 11);
+        const map = L.map("map", {
+          zoomControl: true,
+          scrollWheelZoom: false,
+        }).setView([37.5665, 126.978], 11);
         window.mapObj = map;
         labelLayerGroup.addTo(map);
 
         fetch("{% static 'main/svg/hangjeongdong_서울특별시.geojson' %}")
           .then((res) => res.json())
           .then((data) => {
-            geojsonLayer = L.geoJSON(data, { style: mainStyle, onEachFeature: onEachFeature }).addTo(map);
+            geojsonLayer = L.geoJSON(data, {
+              style: mainStyle,
+              onEachFeature: onEachFeature,
+            }).addTo(map);
             updateLabels();
             map.fitBounds(geojsonLayer.getBounds());
             map.on("zoomend", updateLabels);
@@ -589,24 +885,35 @@
         const props = feature.properties;
         const dName = props.adm_nm.split(" ")[1];
         const hjdCode = props.adm_cd2.substring(0, 8);
-        let styleOptions = { fillOpacity: 0.7, weight: 1, opacity: 1, color: "#999" };
+        let styleOptions = {
+          fillOpacity: 0.7,
+          weight: 1,
+          opacity: 1,
+          color: "#999",
+        };
 
         if (isAllNeighborhoodMode) {
           styleOptions.fillColor = getColor(residualMap[hjdCode]);
-          styleOptions.fillOpacity = 0.8; styleOptions.weight = 0.5; styleOptions.color = "#ccc";
+          styleOptions.fillOpacity = 0.8;
+          styleOptions.weight = 0.5;
+          styleOptions.color = "#ccc";
           return styleOptions;
         }
 
         if (currentLevel === 0) {
           const guCode = props.adm_cd2.substring(0, 5);
           styleOptions.fillColor = getColor(districtResidualMap[guCode]);
-          styleOptions.color = "rgba(0,0,0,0.1)"; styleOptions.weight = 0.5;
+          styleOptions.color = "rgba(0,0,0,0.1)";
+          styleOptions.weight = 0.5;
         } else {
           if (dName === selectedDistrict) {
             styleOptions.fillColor = getColor(residualMap[hjdCode]);
-            styleOptions.color = "white"; styleOptions.weight = 1;
+            styleOptions.color = "white";
+            styleOptions.weight = 1;
           } else {
-            styleOptions.fillOpacity = 0.05; styleOptions.color = "#eee"; styleOptions.fillColor = "#eee";
+            styleOptions.fillOpacity = 0.05;
+            styleOptions.color = "#eee";
+            styleOptions.fillColor = "#eee";
           }
         }
         return styleOptions;
@@ -623,34 +930,48 @@
 
             if (isAllNeighborhoodMode || currentLevel === 1) {
               name = props.adm_nm.split(" ").slice(2).join(" ");
-              val = residualMap[code]; usage = usageMap[code];
+              val = residualMap[code];
+              usage = usageMap[code];
             } else {
               const guCode = props.adm_cd2.substring(0, 5);
               name = props.adm_nm.split(" ")[1];
-              val = districtResidualMap[guCode]; usage = districtUsageMap[guCode];
+              val = districtResidualMap[guCode];
+              usage = districtUsageMap[guCode];
             }
 
             if (val !== undefined && val !== null) {
               const color = getColor(val);
-              const usageContent = usage ? `평일: <b>${usage.weekday.toLocaleString()}</b>명<br>주말: <b>${usage.weekend.toLocaleString()}</b>명` : "데이터 없음";
+              const usageContent = usage
+                ? `평일: <b>${usage.weekday.toLocaleString()}</b>명<br>주말: <b>${usage.weekend.toLocaleString()}</b>명`
+                : "데이터 없음";
               const content = `<div style="text-align:left; min-width:140px;">
                       <strong style="font-size:1.1em;">${name}</strong><br>
-                      <span style="color:#555">인프라 잔차:</span> <span style="font-weight:bold; color:${color}; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff;">${val.toFixed(2)}</span><br>
+                      <span style="color:#555">인프라 잔차:</span> <span style="font-weight:bold; color:${color}; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff;">${val.toFixed(
+                2
+              )}</span><br>
                       <div style="margin:6px 0; border-top:1px solid #ddd;"></div>
                       <span style="color:#555; font-size:0.9em;">📊 기간 내 일평균 승객</span><br>${usageContent}</div>`;
               layer.setTooltipContent(content);
             } else {
-              layer.setTooltipContent(`<strong>${name}</strong><br>데이터 없음`);
+              layer.setTooltipContent(
+                `<strong>${name}</strong><br>데이터 없음`
+              );
             }
           },
           mouseout: resetHighlight,
           click: function (e) {
             const dName = e.target.feature.properties.adm_nm.split(" ")[1];
-            const districtLayers = geojsonLayer.getLayers().filter((l) => l.feature.properties.adm_nm.includes(dName));
+            const districtLayers = geojsonLayer
+              .getLayers()
+              .filter((l) => l.feature.properties.adm_nm.includes(dName));
             const districtBounds = L.featureGroup(districtLayers).getBounds();
-            currentLevel = 1; selectedDistrict = dName;
-            document.getElementById("map-sub-title").innerText = `${selectedDistrict} 상세 분석`;
-            document.getElementById("map-guide-text").innerText = "행정동별 인프라 과부족 현황을 표시합니다.";
+            currentLevel = 1;
+            selectedDistrict = dName;
+            document.getElementById(
+              "map-sub-title"
+            ).innerText = `${selectedDistrict} 상세 분석`;
+            document.getElementById("map-guide-text").innerText =
+              "행정동별 인프라 과부족 현황을 표시합니다.";
             window.mapObj.fitBounds(districtBounds, { padding: [50, 50] });
             geojsonLayer.setStyle(mainStyle);
             updateLabels();
@@ -658,8 +979,19 @@
         });
       }
 
-      function highlightFeature(e) { e.target.setStyle({ weight: 3, color: "#666", dashArray: "", fillOpacity: 0.7 }); if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) e.target.bringToFront(); }
-      function resetHighlight(e) { geojsonLayer.resetStyle(e.target); }
+      function highlightFeature(e) {
+        e.target.setStyle({
+          weight: 3,
+          color: "#666",
+          dashArray: "",
+          fillOpacity: 0.7,
+        });
+        if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge)
+          e.target.bringToFront();
+      }
+      function resetHighlight(e) {
+        geojsonLayer.resetStyle(e.target);
+      }
 
       function updateLabels() {
         if (!geojsonLayer) return;
@@ -671,12 +1003,25 @@
       }
 
       function addDistrictLabels(data) {
-        let districtNames = [...new Set(data.features.map((f) => f.properties.adm_nm.split(" ")[1]))];
+        let districtNames = [
+          ...new Set(
+            data.features.map((f) => f.properties.adm_nm.split(" ")[1])
+          ),
+        ];
         districtNames.forEach((name) => {
-          let layers = geojsonLayer.getLayers().filter((l) => l.feature.properties.adm_nm.includes(name));
+          let layers = geojsonLayer
+            .getLayers()
+            .filter((l) => l.feature.properties.adm_nm.includes(name));
           if (layers.length === 0) return;
           let center = L.featureGroup(layers).getBounds().getCenter();
-          L.marker(center, { icon: L.divIcon({ className: "district-label", html: name, iconSize: [60, 22] }), interactive: false }).addTo(labelLayerGroup);
+          L.marker(center, {
+            icon: L.divIcon({
+              className: "district-label",
+              html: name,
+              iconSize: [60, 22],
+            }),
+            interactive: false,
+          }).addTo(labelLayerGroup);
         });
       }
 
@@ -687,29 +1032,48 @@
           const dongName = props.adm_nm.split(" ").slice(2).join(" ");
           if (currentLevel === 1 && dName !== selectedDistrict) return;
           if (!window.mapObj.getBounds().intersects(layer.getBounds())) return;
-          L.marker(layer.getBounds().getCenter(), { icon: L.divIcon({ className: "dong-label", html: dongName, iconSize: [80, 15] }), interactive: false }).addTo(labelLayerGroup);
+          L.marker(layer.getBounds().getCenter(), {
+            icon: L.divIcon({
+              className: "dong-label",
+              html: dongName,
+              iconSize: [80, 15],
+            }),
+            interactive: false,
+          }).addTo(labelLayerGroup);
         });
       }
 
       function resetMap() {
-        currentLevel = 0; isAllNeighborhoodMode = false; document.getElementById("toggle-neighborhood").checked = false; selectedDistrict = null;
-        document.getElementById("map-sub-title").innerText = "서울시 자치구별 현황 (Overview)";
-        document.getElementById("map-guide-text").innerText = "지도의 자치구를 클릭하면 상세 행정동 데이터를 확인할 수 있습니다.";
+        currentLevel = 0;
+        isAllNeighborhoodMode = false;
+        document.getElementById("toggle-neighborhood").checked = false;
+        selectedDistrict = null;
+        document.getElementById("map-sub-title").innerText =
+          "서울시 자치구별 현황 (Overview)";
+        document.getElementById("map-guide-text").innerText =
+          "지도의 자치구를 클릭하면 상세 행정동 데이터를 확인할 수 있습니다.";
         window.mapObj.setView([37.5665, 126.978], 11);
         geojsonLayer.setStyle(mainStyle);
         updateLabels();
       }
 
       function toggleNeighborhoodMode() {
-        isAllNeighborhoodMode = document.getElementById("toggle-neighborhood").checked;
-        geojsonLayer.setStyle(mainStyle); updateLabels();
+        isAllNeighborhoodMode = document.getElementById(
+          "toggle-neighborhood"
+        ).checked;
+        geojsonLayer.setStyle(mainStyle);
+        updateLabels();
       }
 
       function initChart() {
         if (window.myChart) window.myChart.destroy();
         if (!scatterData || scatterData.length === 0) return;
         const ctx = document.getElementById("scatterChart").getContext("2d");
-        const points = scatterData.map((d) => ({ x: d.x, y: d.y, name: d.name }));
+        const points = scatterData.map((d) => ({
+          x: d.x,
+          y: d.y,
+          name: d.name,
+        }));
         const minPop = Math.min(...points.map((p) => p.x));
         const maxPop = Math.max(...points.map((p) => p.x));
 
@@ -717,16 +1081,59 @@
           type: "scatter",
           data: {
             datasets: [
-              { label: "행정동", data: points, backgroundColor: "rgba(54, 162, 235, 0.6)", borderColor: "rgba(54, 162, 235, 1)", borderWidth: 1, pointRadius: 4, pointHoverRadius: 6, order: 2 },
-              { label: "적정 공급 라인 (회귀선)", data: [{ x: minPop, y: macroResults.slope * minPop + macroResults.intercept }, { x: maxPop, y: macroResults.slope * maxPop + macroResults.intercept }], type: "line", borderColor: "#ff0055", borderWidth: 4, fill: false, tension: 0, pointRadius: 0, order: 0 }
+              {
+                label: "행정동",
+                data: points,
+                backgroundColor: "rgba(54, 162, 235, 0.6)",
+                borderColor: "rgba(54, 162, 235, 1)",
+                borderWidth: 1,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                order: 2,
+              },
+              {
+                label: "적정 공급 라인 (회귀선)",
+                data: [
+                  {
+                    x: minPop,
+                    y: macroResults.slope * minPop + macroResults.intercept,
+                  },
+                  {
+                    x: maxPop,
+                    y: macroResults.slope * maxPop + macroResults.intercept,
+                  },
+                ],
+                type: "line",
+                borderColor: "#ff0055",
+                borderWidth: 4,
+                fill: false,
+                tension: 0,
+                pointRadius: 0,
+                order: 0,
+              },
             ],
           },
           options: {
-            responsive: true, maintainAspectRatio: false,
-            scales: { x: { title: { display: true, text: "인구수 (명)" } }, y: { title: { display: true, text: "버스 정류장 수 (개)" } } },
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { title: { display: true, text: "인구수 (명)" } },
+              y: { title: { display: true, text: "버스 정류장 수 (개)" } },
+            },
             plugins: {
-              tooltip: { callbacks: { label: function (context) { if (context.dataset.type === "line") return null; return `${context.raw.name}: 인구 ${context.raw.x}명, 정류장 ${context.raw.y}개`; } } },
-              legend: { display: true, position: "top", labels: { boxWidth: 12, padding: 20 } },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    if (context.dataset.type === "line") return null;
+                    return `${context.raw.name}: 인구 ${context.raw.x}명, 정류장 ${context.raw.y}개`;
+                  },
+                },
+              },
+              legend: {
+                display: true,
+                position: "top",
+                labels: { boxWidth: 12, padding: 20 },
+              },
             },
           },
         });

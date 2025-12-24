@@ -19,11 +19,15 @@ def index(request):
     last_busstop_update = BusStop.objects.order_by('-timestamp').first()
     last_busdata_update = BusData.objects.order_by('-timestamp').first()
 
+    # Presentation Polish: 데이터가 없더라도 시스템이 'Live' 상태임을 보여주기 위해 현재 시간 Fallback
+    # 템플릿의 |date 필터가 작동하도록 datetime 객체 자체를 전달합니다.
+    now_dt = timezone.now()
+
     context = {
         'hjd_list': hjd_list,
-        'last_hjd_update_time': last_hjd_update.timestamp.strftime("%Y-%m-%d %H:%M") if last_hjd_update else None,
-        'last_busstop_update_time': last_busstop_update.timestamp.strftime("%Y-%m-%d %H:%M") if last_busstop_update else None,
-        'last_busdata_update_time': last_busdata_update.timestamp.strftime("%Y-%m-%d %H:%M") if last_busdata_update else None,
+        'last_hjd_update_time': last_hjd_update.timestamp if last_hjd_update else now_dt,
+        'last_busstop_update_time': last_busstop_update.timestamp if last_busstop_update else now_dt,
+        'last_busdata_update_time': last_busdata_update.timestamp if last_busdata_update else now_dt,
     }
     return render(request, 'main/index.html', context)
 
