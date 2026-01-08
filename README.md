@@ -7,9 +7,6 @@
 
 ## 📸 스크린샷 (Screenshots)
 
-프로젝트의 핵심 기능이나 시각화 결과물을 여기에 추가하세요.
-`docs/images` 폴더에 이미지를 넣고 아래 주석을 해제하여 파일명을 수정하면 됩니다.
-
 ![시각화 예시 1](docs/images/1.png)
 ![시각화 예시 2](docs/images/2.png)
 ![시각화 예시 3](docs/images/3.png)
