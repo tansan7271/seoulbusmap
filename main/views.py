@@ -238,7 +238,7 @@ def analysis_report(request):
     
     return render(request, 'main/analysis_report.html', context)
 
-def 000(request):
+def member_page(request):
     """
     김000 팀원을 위한 2.5D 시각화 전용 페이지
     """
@@ -249,7 +249,7 @@ def visualization_report(request):
     000(산점도) + 000(타임랩스) 시각화를 통합하여 보여주는 페이지
     """
     return render(request, 'main/visualization_report.html')
-def 000_visualization(request):
+def special_visualization(request):
     """
     김000 팀원을 위한 시각화 페이지 뷰.
     
