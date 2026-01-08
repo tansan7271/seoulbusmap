@@ -1,16 +1,19 @@
+![로고](docs/images/0.png)
+
 # SeoulBusMap: 서울시 대중교통 소외 지역 분석 및 시각화 아카이브
 
 **SeoulBusMap**은 서울시의 대중교통 소외 지역(Transit Deserts)을 조명하는 데이터 분석 및 시각화 서비스입니다.
 실시간 버스 승하차 데이터와 행정동별 인구 데이터를 분석하여, 도시의 **수요-공급 균형**과 **도시 기능(주거/상업)**을 시각적으로 규명합니다.
 
-<!--
 ## 📸 스크린샷 (Screenshots)
+
 프로젝트의 핵심 기능이나 시각화 결과물을 여기에 추가하세요.
 `docs/images` 폴더에 이미지를 넣고 아래 주석을 해제하여 파일명을 수정하면 됩니다.
 
-![메인 화면](docs/images/main_screenshot.png)
-![시각화 예시](docs/images/visualization_example.png)
--->
+![시각화 예시 1](docs/images/1.png)
+![시각화 예시 2](docs/images/2.png)
+![시각화 예시 3](docs/images/3.png)
+![시각화 예시 4](docs/images/4.png)
 
 ## 🚀 주요 기능
 
@@ -101,14 +104,5 @@
   - `python manage.py bake_analysis_data`: 분석 결과 JSON 파일 생성 (성능 최적화용)
   - `python manage.py delete_bus_data`: 오래된 데이터 삭제
   - `python manage.py vacuum_db`: DB 용량 최적화
-
-## 👥 만든 사람들 (Credits)
-
-**Team SeoulBusMap**
-
-- 김 000
-- 김 000
-- 유 000
-- 이 000
 
 _본 프로젝트는 중앙대학교 예술공학대학 예술공학부 [디지털아카이빙과 데이터시각화] 수업의 일환으로 제작되었습니다._
