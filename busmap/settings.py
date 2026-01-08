@@ -12,15 +12,27 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
+import os
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load .env file if it exists
+env_path = BASE_DIR / '.env'
+if env_path.exists():
+    with open(env_path) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                key, value = line.split('=', 1)
+                os.environ.setdefault(key, value)
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '<your-django-secret-key>'
+SECRET_KEY = os.environ.get('SECRET_KEY', '<your-django-secret-key>')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -124,7 +136,7 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Seoul Open API 키 (반출 절대 금지!!!!!)
-SEOUL_API_KEY = "<your-seoul-api-key>"
+SEOUL_API_KEY = os.environ.get('SEOUL_API_KEY', '<your-seoul-api-key>')
 
 # Kakao REST API 키 (반출 절대 금지!!!!!)
-KAKAO_API_KEY = "<your-kakao-api-key>"
+KAKAO_API_KEY = os.environ.get('KAKAO_API_KEY', '<your-kakao-api-key>')
