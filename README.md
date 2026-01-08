@@ -70,7 +70,7 @@
 
 4.  **환경 변수 설정 (.env)**
 
-    - 프로젝트 루트에 `.env` 파일을 생성하고 API 키를 입력하세요.
+    프로젝트 루트에 `.env` 파일을 생성하고 API 키를 입력하세요.
       ```
       SECRET_KEY=your_django_secret_key
       SEOUL_API_KEY=your_seoul_data_key
@@ -94,9 +94,9 @@
 본 프로젝트는 데이터 수집 및 관리를 위한 커스텀 명령어를 제공합니다.
 
 - **데이터 수집**:
-  - `python manage.py fetch_hangjeongdong_data`: 행정동 데이터 수집 (최초 1회)
+  - `python manage.py fetch_hangjeongdong_data`: 행정동 데이터 수집
   - `python manage.py fetch_busstop_data`: 버스 정류장 데이터 수집
-  - `python manage.py fetch_bus_data`: 실시간 버스 승하차 데이터 수집 (Cron 등으로 주기적 실행 권장)
+  - `python manage.py fetch_bus_data`: 실시간 버스 승하차 데이터 수집 (서버 실행 시 자동 스케줄러 구현되어 있음, 주기적 실행 권장)
 - **데이터 관리**:
   - `python manage.py bake_analysis_data`: 분석 결과 JSON 파일 생성 (성능 최적화용)
   - `python manage.py delete_bus_data`: 오래된 데이터 삭제
